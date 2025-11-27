@@ -24,6 +24,19 @@ router.get('/pizzadujour', async (req, res, next) => {
     }
 });
 
+// get ingredient by pizza id
+
+router.get('/:id/ingredient', async (req, res, next) => {
+    try {
+        const [rows] = await db.query(' select i.* from ingredient i join composer c on i.id_ingredient= c.id_ingredient where c.id_pizza =? ',
+            [req.params.id]);
+        res.json(rows);
+    } catch (err){
+        console.error(err);
+        res.status(500).send('Database error');
+    }
+})
+
 /* Get pizza by id */
 router.get('/:id', async (req, res, next) => {
     try {
