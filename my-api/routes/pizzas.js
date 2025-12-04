@@ -2,6 +2,33 @@ var express = require('express');
 var router = express.Router();
 const db=require('../db/db.js');
 
+/* POST */
+/* Post pizza */
+router.post('/create', async (req, res, next) => {
+    try {
+        const {name, description, prix, image, id_categorie} = req.body;
+        console.log(name)
+        // Validate required fields
+        if (!name || !prix) {
+            return res.status(400).json({
+                error: "Les champs 'name' et 'prix' sont obligatoires.",
+            });
+        }
+
+        const[result] = await db.query('INSERT INTO pizza (name, description, prix, image, id_categorie) VALUES (?, ?, ?, ?, ?)', [name, description, prix, image, id_categorie]);
+
+        return res.status(201).json({
+            id: result.insertId,
+            name,
+            prix
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Database error');
+    }
+});
+
+/* GET */
 /* Get all pizzas */
 router.get('/', async (req, res, next) => {
     try {
@@ -16,16 +43,15 @@ router.get('/', async (req, res, next) => {
 /* Get pizza of the day */
 router.get('/pizzadujour', async (req, res, next) => {
     try {
-        const [rows] = await db.query('SELECT * FROM Pizza ORDER BY id_pizza LIMIT 1');
-        res.json(rows[0] || null);
+        const [rows] = await db.query('SELECT * FROM promotion WHERE active = 1');
+        res.json(rows);
     } catch (err) {
         console.error(err);
         res.status(500).send('Database error');
     }
 });
 
-// get ingredient by pizza id
-
+// Get ingredient by pizza id
 router.get('/:id/ingredient', async (req, res, next) => {
     try {
         const [rows] = await db.query(' select i.* from ingredient i join composer c on i.id_ingredient= c.id_ingredient where c.id_pizza =? ',

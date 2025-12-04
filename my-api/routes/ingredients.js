@@ -2,8 +2,33 @@ var express = require('express');
 var router = express.Router();
 const db =require('../db/db.js');
 
+/* POST */
+/* Post ingredient */
+router.post('/create', async (req, res, next) => {
+    try {
+        const {name} = req.body;
+        console.log(name)
+        // Validate required fields
+        if (!name) {
+            return res.status(400).json({
+                error: "Le champ 'name' est obligatoire.",
+            });
+        }
 
-// get all ingredients
+        const[result] = await db.query('INSERT INTO ingredient (name) VALUES (?)', [name]);
+
+        return res.status(201).json({
+            id: result.insertId,
+            name
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Database error');
+    }
+});
+
+// GET //
+// Get all ingredients
 
 router.get('/', async (req, res) => {
     try {
@@ -15,7 +40,7 @@ router.get('/', async (req, res) => {
     }
 })
 
-// get ingredient by id
+// Get ingredient by id
 
 router.get('/:id', async (req, res) => {
     try {
