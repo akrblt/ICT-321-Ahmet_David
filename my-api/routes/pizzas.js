@@ -50,6 +50,32 @@ router.get('/pizzadujour', async (req, res, next) => {
         res.status(500).send('Database error');
     }
 });
+// post pizzadujour
+
+router.post('/pizzadujour/create', async (req, res, next) => {
+    const {id_pizza, date_start, date_finish, rabais, active} = req.body;
+    if (!id_pizza || !date_start || !date_finish || active == null || rabais == null) {
+        return res.status(400).json({
+            error: "Les champs sont obligatoires.",
+        });
+    }
+    try {
+
+        const[result] = await db.query('INSERT INTO promotion (id_pizza,date_start ,date_finish, rabais, active) VALUES (?, ?, ?, ?, ?)', [ id_pizza, date_start, date_finish,rabais ,active]);
+
+        return res.status(201).json({
+            id: result.insertId,
+            id_pizza,
+            date_start,
+            date_finish,
+            rabais,
+            active
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Database error');
+    }
+});
 
 // Get ingredient by pizza id
 router.get('/:id/ingredient', async (req, res, next) => {
