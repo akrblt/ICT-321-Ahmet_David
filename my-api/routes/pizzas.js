@@ -2,32 +2,6 @@ var express = require('express');
 var router = express.Router();
 const db=require('../db/db.js');
 
-/* POST */
-/* Post pizza */
-router.post('/create', async (req, res, next) => {
-    try {
-        const {name, description, prix, image, id_categorie} = req.body;
-        console.log(name)
-        // Validate required fields
-        if (!name || !prix) {
-            return res.status(400).json({
-                error: "Les champs 'name' et 'prix' sont obligatoires.",
-            });
-        }
-
-        const[result] = await db.query('INSERT INTO pizza (name, description, prix, image, id_categorie) VALUES (?, ?, ?, ?, ?)', [name, description, prix, image, id_categorie]);
-
-        return res.status(201).json({
-            id: result.insertId,
-            name,
-            prix
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Database error');
-    }
-});
-
 /* GET */
 /* Get all pizzas */
 router.get('/', async (req, res, next) => {
@@ -101,4 +75,60 @@ router.get('/:id', async (req, res, next) => {
     }
 });
 
+/* POST */
+/* Post pizza */
+router.post('/create', async (req, res, next) => {
+    try {
+        const {name, description, prix, image, id_categorie} = req.body;
+        console.log(name)
+        // Validate required fields
+        if (!name || !prix) {
+            return res.status(400).json({
+                error: "Les champs 'name' et 'prix' sont obligatoires.",
+            });
+        }
+
+        const[result] = await db.query('INSERT INTO pizza (name, description, prix, image, id_categorie) VALUES (?, ?, ?, ?, ?)', [name, description, prix, image, id_categorie]);
+
+        return res.status(201).json({
+            id: result.insertId,
+            name,
+            prix
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Database error');
+    }
+});
+
+/* PATCH : partial UPDATE */
+/* Patch pizza */
+router.patch('/:id', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const updates = [];
+        const values = [];
+
+        for (const key in req.body) {
+            updates.push(`${key}= ?`);
+            values.push(req.body[key]);
+        }
+
+        const resPatchPizza = await db.query(`
+            UPDATE pizza
+            SET ${updates.join(', ')}
+            WHERE id_pizza = ${id}
+        `, values);
+
+        const [pizza] = await db.query('SELECT * FROM pizza WHERE id_pizza = ?', id);
+            
+        return res.status(201).json({
+            resPatchPizza,
+            pizza
+        })
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Database error');
+    }
+});
 module.exports = router;
