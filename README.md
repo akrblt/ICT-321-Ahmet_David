@@ -58,6 +58,11 @@ REST API <br>
 You can find all the necessary information at this link. <br>
 ### 👉 https://github.com/akrblt/ICT-321-Ahmet_David/wiki
 
+## 4- Swagger documentation
+You must installer swagger ui  
+npm install swagger-jsdoc swagger-ui-express  
+http://localhost:3000/api-docs/
+
 
 
 
