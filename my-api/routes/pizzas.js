@@ -85,6 +85,73 @@ router.get('/pizzadujour/nom', async (req, res) => {
 });
 
 
+router.get('/pizzadujour/prix', async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT 
+                pi.prix AS prix_original,
+                pr.rabais AS rabais,
+                (pi.prix - pr.rabais) AS prix_total
+             FROM promotion pr
+             INNER JOIN pizza pi 
+                ON pr.id_pizza = pi.id_pizza
+             WHERE CURDATE() BETWEEN pr.date_start AND pr.date_finish
+             LIMIT 1;`
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Aucune pizza du jour active" });
+        }
+
+        res.json(rows[0]);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Database error");
+    }
+});
+
+router.get('/pizzadujour/ingredients', async (req, res) => {
+    try {
+
+        const [promo] = await db.query(
+            `SELECT pi.id_pizza
+             FROM promotion pr
+             INNER JOIN pizza pi 
+                ON pr.id_pizza = pi.id_pizza
+             WHERE CURDATE() BETWEEN pr.date_start AND pr.date_finish
+             LIMIT 1;`
+        );
+
+        if (promo.length === 0) {
+            return res.status(404).json({ message: "Aucune pizza du jour active" });
+        }
+
+        const id_pizza = promo[0].id_pizza;
+
+
+        const [ingredients] = await db.query(
+            `SELECT ing.name
+             FROM composer c
+             INNER JOIN ingredient ing 
+                ON c.id_ingredient = ing.id_ingredient
+             WHERE c.id_pizza = ?;`,
+            [id_pizza]
+        );
+
+        res.json({
+            id_pizza,
+            ingredients: ingredients.map(i => i.name)
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Database error");
+    }
+});
+
+
+
 
 // post pizzadujour
 router.post('/pizzadujour/create', async (req, res, next) => {
