@@ -110,8 +110,20 @@ router.patch('/:id', async (req, res) => {
         const values = [];
 
         for (const key in req.body) {
-            updates.push(`${key}= ?`);
-            values.push(req.body[key]);
+            if (key !== "id_pizza"){        /* empêcher de modifier l'id */
+                updates.push(`${key}= ?`);
+                values.push(req.body[key]);
+            } else {
+                return res.status(400).json({
+                    error: "Le champ 'id_pizza' ne peut pas être modifié.",
+                });
+            }
+        }
+
+        if (updates.length === 0) {         /* empêcher le patch vide */
+            return res.status(400).json({
+                error: "Aucun champ valide à mettre à jour.",
+            });
         }
 
         const resPatchPizza = await db.query(`
