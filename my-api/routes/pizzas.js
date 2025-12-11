@@ -61,6 +61,31 @@ router.get('/pizzadujour', async (req, res, next) => {
         res.status(500).send('Database error');
     }
 });
+router.get('/pizzadujour/nom', async (req, res) => {
+    try {
+        const [rows] = await db.query(
+            `SELECT pi.name
+             FROM promotion pr
+             INNER JOIN pizza pi 
+                ON pr.id_pizza = pi.id_pizza
+             WHERE CURDATE() BETWEEN pr.date_start AND pr.date_finish
+             LIMIT 1;`
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "Aucune pizza du jour active" });
+        }
+
+        res.json({ nom: rows[0].name });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Database error");
+    }
+});
+
+
+
 // post pizzadujour
 router.post('/pizzadujour/create', async (req, res, next) => {
     const {id_pizza, date_start, date_finish, rabais, active} = req.body;
