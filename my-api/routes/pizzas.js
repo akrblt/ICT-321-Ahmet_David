@@ -3,8 +3,8 @@ import db from '../db/db.js';
 const router = express.Router();
 
 /* GET */
-/* Get all pizzas */
 
+/* Get all pizzas */
 /**
  * @openapi
  * /pizzas:
@@ -61,7 +61,6 @@ const router = express.Router();
  *       500:
  *         description: system exception describing the error.
  */
-
 router.get('/', async (req, res, next) => {
     try {
         const filters = req.query;
@@ -111,6 +110,7 @@ router.get('/', async (req, res, next) => {
     }
 })
 
+/* Get pizza of the day */
 /**
  * @openapi
  * /pizzas/pizzadujour:
@@ -129,8 +129,6 @@ router.get('/', async (req, res, next) => {
  *       500:
  *         description: system exception describing the error.
  */
-
-/* Get pizza of the day */
 router.get('/pizzadujour', async (req, res, next) => {
     try {
         const [rows] = await db.query('SELECT pi.id_pizza, pi.name, pi.prix, pr.rabais, (pi.prix - pr.rabais) AS prix_final, pr.date_start, pr.date_finish\n' +
@@ -144,34 +142,27 @@ router.get('/pizzadujour', async (req, res, next) => {
         res.status(500).send('Database error');
     }
 });
-// post pizzadujour
-router.post('/pizzadujour/create', async (req, res, next) => {
-    const {id_pizza, date_start, date_finish, rabais, active} = req.body;
-    if (!id_pizza || !date_start || !date_finish || active == null || rabais == null) {
-        return res.status(400).json({
-            error: "Les champs sont obligatoires.",
-        });
-    }
-    try {
 
-        const[result] = await db.query('INSERT INTO promotion (id_pizza,date_start ,date_finish, rabais, active) VALUES (?, ?, ?, ?, ?)', [ id_pizza, date_start, date_finish,rabais ,active]);
-
-        return res.status(201).json({
-            id: result.insertId,
-            id_pizza,
-            date_start,
-            date_finish,
-            rabais,
-            active
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Database error');
-    }
-});
-
-// Get ingredient by pizza id
-router.get('/:id/ingredient', async (req, res, next) => {
+// Get ingredients by pizza id
+/**
+ * @openapi
+ * /pizzas/:id/ingredients:
+ *   get:
+ *     summary: returns the ingredients of the pizza.
+ *     description: get ingrdients of the pizza in query.
+ *     responses:
+ *       200:
+ *         description: Returns an array of ingredients.
+ *         content:
+ *             application/json:
+ *              schema:
+ *                  type: array
+ *                  items:
+ *                    $ref: "#/components/schemas/ingredient"
+ *       500:
+ *         description: system exception describing the error.
+ */
+router.get('/:id/ingredients', async (req, res, next) => {
     try {
         const [rows] = await db.query(' select i.* from ingredient i join composer c on i.id_ingredient= c.id_ingredient where c.id_pizza =? ',
             [req.params.id]);
@@ -182,20 +173,59 @@ router.get('/:id/ingredient', async (req, res, next) => {
     }
 })
 
-/* Get pizza by id */
-router.get('/:id', async (req, res, next) => {
-    try {
-        const [rows] = await db.query('SELECT * FROM Pizza WHERE id_pizza = ?', [req.params.id]);
-        if (rows.length === 0) return res.status(404).send('Pizza not found');
-        res.json(rows[0]);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Database error');
-    }
-});
-
 /* POST */
 /* Post pizza */
+/**
+ * @openapi
+ * /pizzas/pizzas/create:
+ *   post:
+ *     summary: create a pizza.
+ *     description: post a pizza.
+ *     parameters:
+ *       - name: name
+ *         in: query
+ *         required: true
+ *         schema:
+ *              type: string
+ *              description: returns pizza matching name
+ *       - name: description
+ *         in: query
+ *         required: false
+ *         schema:
+ *              type: string
+ *              description: returns pizza matching description
+ *       - name: prix
+ *         in: query
+ *         required: true
+ *         schema:
+ *              type: float
+ *              description: returns pizza matching price
+ *       - name: image
+ *         in: query
+ *         required: false
+ *         schema:
+ *              type: string
+ *              description: returns pizza matching image
+ *       - name: id_categorie
+ *         in: query
+ *         required: false
+ *         schema:
+ *              type: integer
+ *              description: returns pizza matching category
+ *     responses:
+ *       200:
+ *         description: add the pizza and return the pizza info.
+ *         content:
+ *             application/json:
+ *              schema:
+ *                  type: array
+ *                  items:
+ *                    $ref: "#/components/schemas/pizza"
+ *       400:
+ *         description: exception describing all required fields
+ *       500:
+ *         description: system exception describing the error.
+ */
 router.post('/create', async (req, res, next) => {
     try {
         const {name, description, prix, image, id_categorie} = req.body;
@@ -213,6 +243,77 @@ router.post('/create', async (req, res, next) => {
             id: result.insertId,
             name,
             prix
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Database error');
+    }
+});
+
+/**
+ * @openapi
+ * /pizzas/pizzadujour/create:
+ *   post:
+ *     summary: create an offer for a pizza.
+ *     description: post an offer with a start and finish date for a pizza.
+ *     parameters:
+ *       - name: id_pizza
+ *         in: body
+ *         required: true
+ *         schema:
+ *              type: string
+ *              description: returns pizza matching name
+ *       - name: date_start
+ *         in: body
+ *         required: false
+ *         schema:
+ *              type: string
+ *              description: returns pizza matching description
+ *       - name: date_finish
+ *         in: body
+ *         required: true
+ *         schema:
+ *              type: float
+ *              description: returns pizza matching price
+ *       - name: rabais
+ *         in: body
+ *         required: false
+ *         schema:
+ *              type: string
+ *              description: returns pizza matching image
+ *     responses:
+ *       200:
+ *         description: add the offer for the pizza and return the offer info.
+ *         content:
+ *             application/json:
+ *              schema:
+ *                  type: array
+ *                  items:
+ *                    $ref: "#/components/schemas/promotion"
+ *       400:
+ *         description: exception describing all required fields
+ *       500:
+ *         description: system exception describing the error.
+ */
+
+// post pizzadujour
+router.post('/pizzadujour/create', async (req, res, next) => {
+    const {id_pizza, date_start, date_finish, rabais} = req.body;
+    if (!id_pizza || !date_start || !date_finish || rabais == null) {
+        return res.status(400).json({
+            error: "Tous les champs sont obligatoires (id_pizza, date_start, date_finish, rabais).",
+        });
+    }
+    try {
+
+        const[result] = await db.query('INSERT INTO promotion (id_pizza,date_start ,date_finish, rabais) VALUES (?, ?, ?, ?)', [ id_pizza, date_start, date_finish, rabais ]);
+
+        return res.status(201).json({
+            id: result.insertId,
+            id_pizza,
+            date_start,
+            date_finish,
+            rabais
         });
     } catch (err) {
         console.error(err);
