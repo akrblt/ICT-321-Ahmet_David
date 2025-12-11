@@ -63,8 +63,16 @@ router.patch('/:id', async (req, res) => {
         const values = [];
 
         for (const key in req.body) {
-            updates.push(`${key}= ?`);
-            values.push(req.body[key]);
+
+            if (key !== 'id_ingredient') {
+                updates.push(`${key}= ?`);
+                values.push(req.body[key]);
+
+            }
+            else {
+                return  res.status(404).send("id_ingredient ne peut pas etre modifier");
+            }
+
         }
 
         const resPatchIngredients = await db.query(`
