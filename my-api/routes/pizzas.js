@@ -25,7 +25,6 @@ router.get('/pizzadujour', async (req, res, next) => {
     }
 });
 // post pizzadujour
-
 router.post('/pizzadujour/create', async (req, res, next) => {
     const {id_pizza, date_start, date_finish, rabais, active} = req.body;
     if (!id_pizza || !date_start || !date_finish || active == null || rabais == null) {
@@ -110,8 +109,20 @@ router.patch('/:id', async (req, res) => {
         const values = [];
 
         for (const key in req.body) {
-            updates.push(`${key}= ?`);
-            values.push(req.body[key]);
+            if (key !== "id_pizza"){        /* empêcher de modifier l'id */
+                updates.push(`${key}= ?`);
+                values.push(req.body[key]);
+            } else {
+                return res.status(400).json({
+                    error: "Le champ 'id_pizza' ne peut pas être modifié.",
+                });
+            }
+        }
+
+        if (updates.length === 0) {         /* empêcher le patch vide */
+            return res.status(400).json({
+                error: "Aucun champ valide à mettre à jour.",
+            });
         }
 
         const resPatchPizza = await db.query(`
@@ -131,4 +142,30 @@ router.patch('/:id', async (req, res) => {
         res.status(500).send('Database error');
     }
 });
+
+/* DELETE */
+router.delete('/:id', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const resDeletePizza = await db.query(`
+        DELETE FROM pizza 
+        WHERE id_pizza = ?`,
+        id);
+
+        let [pizzaFetch] = await db.query('SELECT * FROM pizza WHERE id_pizza = ?', id);
+
+        if (pizzaFetch.length === 0) {
+            pizzaFetch = "La pizza avec l'id: '" + id + "' n'existe pas.";
+        }
+
+        return res.status(201).json({
+            resDeletePizza,
+            pizzaFetch
+        })
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Database error');
+    }
+})
+
 module.exports = router;
