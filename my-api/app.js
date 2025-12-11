@@ -21,6 +21,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Swagger
+//swaggerUI.serve : get the files (html, css, js) for the user interface
+//swaggerUI.setup : takes our parameters with the specification openApiSpecification (see swagger.mjs)
+//explorer : true : research possible in the swagger web page
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiSpecification, { explorer: true }));
 
 // Routers

@@ -1,9 +1,42 @@
 import express from 'express';
-const router = express.Router();
 import db from '../db/db.js';
+const router = express.Router();
 
 /* GET */
 /* Get all pizzas */
+
+/**
+ * @openapi
+ * /pizzas:
+ *   get:
+ *     summary: returns a list of pizzas.
+ *     description: get all pizzas in the menu
+ *     parameters:
+ *       - name: name
+ *         in: query
+ *         required: false
+ *         schema:
+ *              type: string
+ *              description: returns pizza matching name
+ *       - name: description
+ *         in: query
+ *         required: false
+ *         schema:
+ *              type: string
+ *              description: returns
+ *     responses:
+ *       200:
+ *         description: Returns an array of pizzas.
+ *         content:
+ *             application/json:
+ *              schema:
+ *                  type: array
+ *                  items:
+ *                    $ref: "#/components/schemas/pizza"
+ *       500:
+ *         description: system exception describing the error.
+ */
+
 router.get('/', async (req, res, next) => {
     try {
         const [rows] = await db.query('SELECT * FROM Pizza');
