@@ -1,9 +1,42 @@
-var express = require('express');
-var router = express.Router();
-const db=require('../db/db.js');
+import express from 'express';
+import db from '../db/db.js';
+const router = express.Router();
 
 /* GET */
 /* Get all pizzas */
+
+/**
+ * @openapi
+ * /pizzas:
+ *   get:
+ *     summary: returns a list of pizzas.
+ *     description: get all pizzas in the menu
+ *     parameters:
+ *       - name: name
+ *         in: query
+ *         required: false
+ *         schema:
+ *              type: string
+ *              description: returns pizza matching name
+ *       - name: description
+ *         in: query
+ *         required: false
+ *         schema:
+ *              type: string
+ *              description: returns
+ *     responses:
+ *       200:
+ *         description: Returns an array of pizzas.
+ *         content:
+ *             application/json:
+ *              schema:
+ *                  type: array
+ *                  items:
+ *                    $ref: "#/components/schemas/pizza"
+ *       500:
+ *         description: system exception describing the error.
+ */
+
 router.get('/', async (req, res, next) => {
     try {
         const [rows] = await db.query('SELECT * FROM Pizza');
@@ -17,7 +50,11 @@ router.get('/', async (req, res, next) => {
 /* Get pizza of the day */
 router.get('/pizzadujour', async (req, res, next) => {
     try {
-        const [rows] = await db.query('SELECT * FROM promotion WHERE active = 1');
+        const [rows] = await db.query('SELECT pi.id_pizza, pi.name, pi.prix, pr.rabais, (pi.prix - pr.rabais) AS prix_total, pr.date_start, pr.date_finish\n' +
+            'FROM promotion pr\n' +
+            'INNER JOIN pizza pi\n' +
+            'ON pr.id_pizza = pi.id_pizza \n' +
+            'WHERE CURDATE() BETWEEN pr.date_start AND pr.date_finish;');
         res.json(rows);
     } catch (err) {
         console.error(err);
@@ -168,4 +205,4 @@ router.delete('/:id', async (req, res) => {
     }
 })
 
-module.exports = router;
+export default router;

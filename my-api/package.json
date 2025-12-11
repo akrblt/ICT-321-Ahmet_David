@@ -2,9 +2,10 @@
   "name": "my-api",
   "version": "0.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www"
+    "start": "node bin/www.js",
+    "dev": "nodemon bin/www.js"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
@@ -14,6 +15,7 @@
     "morgan": "~1.9.1",
     "mysql2": "^3.15.3",
     "pug": "2.0.0-beta11",
+    "swagger": "^0.7.5",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1"
   },
