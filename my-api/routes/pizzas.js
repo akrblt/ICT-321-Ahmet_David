@@ -17,7 +17,11 @@ router.get('/', async (req, res, next) => {
 /* Get pizza of the day */
 router.get('/pizzadujour', async (req, res, next) => {
     try {
-        const [rows] = await db.query('SELECT * FROM promotion WHERE active = 1');
+        const [rows] = await db.query('SELECT pi.id_pizza, pi.name, pi.prix, pr.rabais, (pi.prix - pr.rabais) AS prix_total, pr.date_start, pr.date_finish\n' +
+            'FROM promotion pr\n' +
+            'INNER JOIN pizza pi\n' +
+            'ON pr.id_pizza = pi.id_pizza \n' +
+            'WHERE CURDATE() BETWEEN pr.date_start AND pr.date_finish;');
         res.json(rows);
     } catch (err) {
         console.error(err);
