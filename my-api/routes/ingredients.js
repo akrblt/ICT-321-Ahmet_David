@@ -54,6 +54,45 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+/* PATCH : partial UPDATE */
+/* Patch ingredients */
+router.patch('/:id', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const updates = [];
+        const values = [];
+
+        for (const key in req.body) {
+
+            if (key !== 'id_ingredient') {
+                updates.push(`${key}= ?`);
+                values.push(req.body[key]);
+
+            }
+            else {
+                return  res.status(404).send("id_ingredient ne peut pas etre modifier");
+            }
+
+        }
+
+        const resPatchIngredients = await db.query(`
+            UPDATE ingredient
+            SET ${updates.join(', ')}
+            WHERE id_ingredient = ${id}
+        `, values);
+
+        const [ingredient] = await db.query('SELECT * FROM ingredient WHERE id_ingredient = ?', id);
+
+        return res.status(201).json({
+            resPatchIngredients,
+            ingredient
+        })
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Database error');
+    }
+});
+
 // DELETE //
 router.delete('/:id', async (req, res) => {
     try {
@@ -77,6 +116,5 @@ router.delete('/:id', async (req, res) => {
         console.error(err);
         res.status(500).send('Database error');
     }
-})
-
+});
 module.exports = router;
