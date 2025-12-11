@@ -1,6 +1,6 @@
-var express = require('express');
-var router = express.Router();
-const db =require('../db/db.js');
+import express from 'express';
+const router = express.Router();
+import db from '../db/db.js';
 
 /* POST */
 /* Post ingredient */
@@ -97,24 +97,33 @@ router.patch('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const id = parseInt(req.params.id);
-        const resDeleteIngredient = await db.query(`
-        DELETE FROM ingredient 
-        WHERE id_ingredient = ?`,
-            id);
-
         let [ingredientFetch] = await db.query('SELECT * FROM ingredient WHERE id_ingredient = ?', id);
 
         if (ingredientFetch.length === 0) {
             ingredientFetch = "L'ingrédient avec l'id: '" + id + "' n'existe pas.";
+            return res.status(400).json(ingredientFetch)
+        }
+        else {
+            const resDeleteIngredient = await db.query(`
+        DELETE FROM ingredient 
+        WHERE id_ingredient = ?`,
+                id);
+            let [ingredientFetch] = await db.query('SELECT * FROM ingredient WHERE id_ingredient = ?', id);
+
+            return res.status(201).json({
+                resDeleteIngredient,
+                ingredientFetch
+            })
         }
 
-        return res.status(201).json({
-            resDeleteIngredient,
-            ingredientFetch
-        })
+
+
+
+
     } catch (err) {
         console.error(err);
         res.status(500).send('Database error');
     }
 });
-module.exports = router;
+
+export default router;
