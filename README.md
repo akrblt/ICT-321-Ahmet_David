@@ -16,10 +16,12 @@ node -v <br>
 npm -v <br>
 
 ### 2- Clone or Download the Project
-
+You can use IntelliJ IDEA or WebStorm or another IDE  to clone the project. <br> 
 If using Git: <br>
 git clone https://github.com/your-repo/ICT-321-Ahmet_David.git <br>
-cd ICT-321-Ahmet_David/my-api <br>
+Open the terminal <br>
+You must see a file path similar to this PS C:\xxxxxxx\xxxxx\xxxxxx\xxxx\ICT-321-Ahmet_David> <br>
+cd my-api <br>
 
 ### 3- Install Dependencies
 
