@@ -1,6 +1,6 @@
-var express = require('express');
-var router = express.Router();
-const db=require('../db/db.js');
+import express from 'express';
+const router = express.Router();
+import db from '../db/db.js';
 
 /* GET */
 /* Get all pizzas */
@@ -168,4 +168,4 @@ router.delete('/:id', async (req, res) => {
     }
 })
 
-module.exports = router;
+export default router;

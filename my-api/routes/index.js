@@ -1,17 +1,15 @@
-var express = require('express');
-var router = express.Router();
+import express from 'express';
+import pizzasRouter from './pizzas.js';
+import ingredientsRouter from './ingredients.js';
 
-
-
-var pizzasRouter = require('./pizzas');
-var ingredientsRouter = require('./ingredients');
+const router = express.Router();
 
 router.use('/pizzas', pizzasRouter);
-router.use('/ingredients', ingredientsRouter)
+router.use('/ingredients', ingredientsRouter);
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
+// Home Page //
+router.get('/', (req, res) => {
     res.render('index', { title: 'David & Ahmet' });
 });
 
-module.exports = router;
+export default router;
