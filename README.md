@@ -9,49 +9,53 @@ Follow the steps below to install and run the project on your machine.
 
 ### 1- Install Node.js & npm
 
-If you don’t have Node.js installed, download it from:
-👉 https://nodejs.org/
-Verify installation:
-node -v
-npm -v
+If you don’t have Node.js installed, download it from: <br>
+👉 https://nodejs.org/ <br>
+Verify installation: <br>
+node -v <br>
+npm -v <br>
 
 ### 2- Clone or Download the Project
 
-If using Git:
-git clone https://github.com/your-repo/ICT-321-Ahmet_David.git
-cd ICT-321-Ahmet_David/my-api
+If using Git: <br>
+git clone https://github.com/your-repo/ICT-321-Ahmet_David.git <br>
+cd ICT-321-Ahmet_David/my-api <br>
 
 ### 3- Install Dependencies
 
-Inside the my-api folder, run:
-npm install 
-This installs packages such as:
-express ,morgan ,mysql2
+Inside the my-api folder, run: <br>
+npm install  <br>
+This installs packages such as: <br>
+express ,morgan ,mysql2 <br>
 After installation, you should see a node_modules/ folder.
 
 ### 4- Configure the Database Connection
 
-Your API reads database config from:
-📁 my-api/db/db.js
-✔ Ensure your MySQL server is running
-✔ Ensure pizza_app database exists
-✔ Ensure table names match your SQL file
+Your API reads database config from: <br>
+📁 my-api/db/db.js <br> 
+📁 docs/app_pizza.sql => You can find database create script <br> 
+✔ Ensure your MySQL server is running <br>
+✔ Ensure pizza_app database exists <br> 
+✔ Ensure table names match your SQL file <br>
 
 ### 5- Start the API
 
-npm start
-or
-bash
-node app.js
-
-
+npm start <br>
+or <br>
+npm run dev <br>
+http://localhost:3000/
 
 ## 2- Technologies Used
 
-Node.js
-Express.js
-MySQL2
-REST API
+Node.js <br>
+Express.js <br>
+MySQL2 <br>
+REST API <br>
+
+## 3- API Usage
+You can find all the necessary information at this link. <br>
+###
+
 
 
 
