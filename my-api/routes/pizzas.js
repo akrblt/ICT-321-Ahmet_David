@@ -10,8 +10,14 @@ const router = express.Router();
  * /pizzas:
  *   get:
  *     summary: returns a list of pizzas.
- *     description: get all pizzas in the menu
+ *     description: get all pizzas in the menu, filter is allowed inside query with "/pizzas?param=value"
  *     parameters:
+ *       - name: id
+ *         in: query
+ *         required: false
+ *         schema:
+ *              type: integer
+ *              description: returns pizza matching id
  *       - name: name
  *         in: query
  *         required: false
@@ -23,7 +29,26 @@ const router = express.Router();
  *         required: false
  *         schema:
  *              type: string
- *              description: returns
+ *              description: returns pizza matching description
+ *       - name: prix
+ *         in: query
+ *         required: false
+ *         schema:
+ *              type: float
+ *              description: returns pizza matching price
+ *       - name: image
+ *         in: query
+ *         required: false
+ *         schema:
+ *              type: string
+ *              description: returns pizza matching image
+ *       - name: id_categorie
+ *         in: query
+ *         required: false
+ *         schema:
+ *              type: integer
+ *              description: returns pizza matching category
+ *
  *     responses:
  *       200:
  *         description: Returns an array of pizzas.
@@ -39,23 +64,81 @@ const router = express.Router();
 
 router.get('/', async (req, res, next) => {
     try {
-        const [rows] = await db.query('SELECT * FROM Pizza');
-        res.json(rows);  // Return all pizzas as JSON
+        const filters = req.query;
+
+        let sql = `
+        SELECT * 
+        FROM pizza 
+        WHERE 1 = 1`
+
+        let params = [];
+
+        if (filters.id) {
+            sql += " AND id_pizza = ?";
+            params.push(filters.id);
+        }
+
+        if (filters.name){
+            sql += " AND name LIKE ?";
+            params.push(filters.name);
+        }
+
+        if (filters.description){
+            sql += " AND description LIKE ?";
+            params.push(filters.description);
+        }
+
+        if (filters.prix) {
+            sql += " AND prix = ?";
+            params.push(`%${filters.prix}%`);
+        }
+
+        if (filters.image) {
+            sql += " AND image = ?";
+            params.push(`%${filters.image}%`);
+        }
+
+        if (filters.id_categorie) {
+            sql += " AND id_categorie = ?";
+            params.push(`%${filters.id_categorie}%`);
+        }
+
+        const [rows] = await db.query(sql, params);
+        res.status(200).json(rows);  // Return all pizzas as JSON
     } catch (err) {
         console.error(err);
         res.status(500).send('Database error');
     }
 })
 
+/**
+ * @openapi
+ * /pizzas/pizzadujour:
+ *   get:
+ *     summary: returns the pizza of the day.
+ *     description: get pizza on sale with final price
+ *     responses:
+ *       200:
+ *         description: Returns an array of pizza's field and computed values.
+ *         content:
+ *             application/json:
+ *              schema:
+ *                  type: array
+ *                  items:
+ *                    $ref: "#/components/schemas/pizzadujour"
+ *       500:
+ *         description: system exception describing the error.
+ */
+
 /* Get pizza of the day */
 router.get('/pizzadujour', async (req, res, next) => {
     try {
-        const [rows] = await db.query('SELECT pi.id_pizza, pi.name, pi.prix, pr.rabais, (pi.prix - pr.rabais) AS prix_total, pr.date_start, pr.date_finish\n' +
+        const [rows] = await db.query('SELECT pi.id_pizza, pi.name, pi.prix, pr.rabais, (pi.prix - pr.rabais) AS prix_final, pr.date_start, pr.date_finish\n' +
             'FROM promotion pr\n' +
             'INNER JOIN pizza pi\n' +
             'ON pr.id_pizza = pi.id_pizza \n' +
             'WHERE CURDATE() BETWEEN pr.date_start AND pr.date_finish;');
-        res.json(rows);
+        res.status(200).json(rows);
     } catch (err) {
         console.error(err);
         res.status(500).send('Database error');

@@ -55,7 +55,20 @@ const options = {
                                         "date_finish": { "type": "integer", "example" :"2025-12-31", "description":"date de fin de la promotion de la pizza" },
                                         "rabais": { "type": "float", "example" :5.00, "description":"rabais sur la pizza" },
                                     },
-                            }
+                            },
+                        "pizzadujour":
+                            {
+                                "properties":
+                                    {
+                                        "id_pizza": { "type": "integer", "example" :1, "description":"id de la pizza en promotion" },
+                                        "name": { "type": "string", "example" :"4 fromages", "description" : "nom de la pizza"  },
+                                        "prix" : {"type": "float", "example" :8.95, "description" : "prix de base de la pizza" },
+                                        "rabais": { "type": "float", "example" :5.00, "description":"rabais sur la pizza" },
+                                        "prix_final": { "type": "float", "example" :4.95, "description":"prix final de la pizza" },
+                                        "date_start": { "type": "integer", "example" :"2025-12-04", "description":"date du début de la promotion de la pizza" },
+                                        "date_finish": { "type": "integer", "example" :"2025-12-31", "description":"date de fin de la promotion de la pizza" },
+                                    },
+                            },
                     },
             }
     },
