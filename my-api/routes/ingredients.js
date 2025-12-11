@@ -54,4 +54,29 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// DELETE //
+router.delete('/:id', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const resDeleteIngredient = await db.query(`
+        DELETE FROM ingredient 
+        WHERE id_ingredient = ?`,
+            id);
+
+        let [ingredientFetch] = await db.query('SELECT * FROM ingredient WHERE id_ingredient = ?', id);
+
+        if (ingredientFetch.length === 0) {
+            ingredientFetch = "L'ingrédient avec l'id: '" + id + "' n'existe pas.";
+        }
+
+        return res.status(201).json({
+            resDeleteIngredient,
+            ingredientFetch
+        })
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Database error');
+    }
+})
+
 module.exports = router;
