@@ -54,4 +54,35 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+/* PATCH : partial UPDATE */
+/* Patch ingredients */
+router.patch('/:id', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const updates = [];
+        const values = [];
+
+        for (const key in req.body) {
+            updates.push(`${key}= ?`);
+            values.push(req.body[key]);
+        }
+
+        const resPatchIngredients = await db.query(`
+            UPDATE ingredient
+            SET ${updates.join(', ')}
+            WHERE id_ingredient = ${id}
+        `, values);
+
+        const [ingredient] = await db.query('SELECT * FROM ingredient WHERE id_ingredient = ?', id);
+
+        return res.status(201).json({
+            resPatchIngredients,
+            ingredient
+        })
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Database error');
+    }
+});
+
 module.exports = router;
