@@ -5,7 +5,6 @@ import db from '../db/db.js';
 
 // READ //
 // Read all ingredients
-
 router.get('/', async (req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM ingredient');
@@ -17,7 +16,6 @@ router.get('/', async (req, res) => {
 })
 
 // Read ingredient by id
-
 router.get('/:id', async (req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM ingredient where id_ingredient = ?',

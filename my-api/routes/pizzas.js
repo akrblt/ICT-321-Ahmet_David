@@ -2,64 +2,56 @@ import express from 'express';
 import db from '../db/db.js';
 const router = express.Router();
 
-/* READ */
-/* Read all pizzas */
 /**
  * @openapi
- * /pizzas:
- *   get:
- *     summary: returns a list of pizzas.
- *     description: get all pizzas in the menu, filter is allowed inside query with "/pizzas?param=value"
- *     parameters:
- *       - name: id
- *         in: query
- *         required: false
- *         schema:
- *              type: integer
- *              description: returns pizza matching id
- *       - name: name
- *         in: query
- *         required: false
- *         schema:
- *              type: string
- *              description: returns pizza matching name
- *       - name: description
- *         in: query
- *         required: false
- *         schema:
- *              type: string
- *              description: returns pizza matching description
- *       - name: prix
- *         in: query
- *         required: false
- *         schema:
- *              type: float
- *              description: returns pizza matching price
- *       - name: image
- *         in: query
- *         required: false
- *         schema:
- *              type: string
- *              description: returns pizza matching image
- *       - name: id_categorie
- *         in: query
- *         required: false
- *         schema:
- *              type: integer
- *              description: returns pizza matching category
- *
- *     responses:
- *       200:
- *         description: Returns an array of pizzas.
- *         content:
- *             application/json:
- *              schema:
- *                  type: array
- *                  items:
- *                    $ref: "#/components/schemas/pizza"
- *       500:
- *         description: system exception describing the error.
+ * components:
+ * schemas:
+ * pizza:
+ * type: object
+ * properties:
+ * id_pizza:
+ * type: integer
+ * name:
+ * type: string
+ * description:
+ * type: string
+ * prix:
+ * type: number
+ * format: float
+ * image:
+ * type: string
+ * id_categorie:
+ * type: integer
  */
+
+/* READ */
+/* Read all pizzas */
+
+/**
+ * @openapi
+* /pizzas:
+* get:
+* summary: Returns a list of pizzas.
+* description: Get all pizzas in the menu. Supports filtering via query parameters.
+* parameters:
+* - name: id
+* in: query
+* schema:
+* type: integer
+* - name: name
+* in: query
+* schema:
+* type: string
+* responses:
+* 200:
+* description: Array of pizzas.
+* content:
+* application/json:
+* schema:
+* type: array
+* items:
+* $ref: "#/components/schemas/pizza"
+* */
 router.get('/', async (req, res, next) => {
     try {
         const filters = req.query;
@@ -112,21 +104,20 @@ router.get('/', async (req, res, next) => {
 // Read pizza by id
 /**
  * @openapi
- * /pizzas/:id:
- *   get:
- *     summary: returns the pizza selected.
- *     description: get pizza with id in query.
- *     responses:
- *       200:
- *         description: Returns the body of a pizza.
- *         content:
- *             application/json:
- *              schema:
- *                  type: array
- *                  items:
- *                    $ref: "#/components/schemas/pizza"
- *       500:
- *         description: system exception describing the error.
+ * /pizzas/{id}:
+ * get:
+ * summary: Returns a specific pizza.
+ * parameters:
+ * - name: id
+ * in: path
+ * required: true
+ * schema:
+ * type: integer
+ * responses:
+ * 200:
+ * description: A pizza object.
+ * 404:
+ * description: Pizza not found.
  */
 router.get('/:id', async (req, res, next) => {
     try {
@@ -142,21 +133,18 @@ router.get('/:id', async (req, res, next) => {
 // Read ingredients by pizza id
 /**
  * @openapi
- * /pizzas/:id/ingredients:
- *   get:
- *     summary: returns the ingredients of the pizza.
- *     description: get ingrdients of the pizza in query.
- *     responses:
- *       200:
- *         description: Returns an array of ingredients.
- *         content:
- *             application/json:
- *              schema:
- *                  type: array
- *                  items:
- *                    $ref: "#/components/schemas/ingredient"
- *       500:
- *         description: system exception describing the error.
+ * /pizzas/{id}/ingredients:
+ * get:
+ * summary: Returns ingredients for a pizza.
+ * parameters:
+ * - name: id
+ * in: path
+ * required: true
+ * schema:
+ * type: integer
+ * responses:
+ * 200:
+ * description: List of ingredients.
  */
 router.get('/:id/ingredients', async (req, res, next) => {
     try {
@@ -174,53 +162,26 @@ router.get('/:id/ingredients', async (req, res, next) => {
 /**
  * @openapi
  * /pizzas:
- *   post:
- *     summary: create a pizza.
- *     description: post a pizza.
- *     parameters:
- *       - name: name
- *         in: query
- *         required: true
- *         schema:
- *              type: string
- *              description: returns pizza matching name
- *       - name: description
- *         in: query
- *         required: false
- *         schema:
- *              type: string
- *              description: returns pizza matching description
- *       - name: prix
- *         in: query
- *         required: true
- *         schema:
- *              type: float
- *              description: returns pizza matching price
- *       - name: image
- *         in: query
- *         required: false
- *         schema:
- *              type: string
- *              description: returns pizza matching image
- *       - name: id_categorie
- *         in: query
- *         required: false
- *         schema:
- *              type: integer
- *              description: returns pizza matching category
- *     responses:
- *       200:
- *         description: add the pizza and return the pizza info.
- *         content:
- *             application/json:
- *              schema:
- *                  type: array
- *                  items:
- *                    $ref: "#/components/schemas/pizza"
- *       400:
- *         description: exception describing all required fields
- *       500:
- *         description: system exception describing the error.
+ * post:
+ * summary: Create a new pizza.
+ * requestBody:
+ * required: true
+ * content:
+ * application/json:
+ * schema:
+ * type: object
+ * required: [name, prix]
+ * properties:
+ * name: { type: string }
+ * description: { type: string }
+ * prix: { type: number }
+ * image: { type: string }
+ * id_categorie: { type: integer }
+ * responses:
+ * 201:
+ * description: Pizza created successfully.
+ * 400:
+ * description: Missing required fields.
  */
 router.post('/', async (req, res, next) => {
     try {
@@ -246,7 +207,29 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-
+/**
+ * @openapi
+ * /pizzas/{id}:
+ * patch:
+ * summary: Partially update a pizza.
+ * description: Update specific fields of a pizza. Cannot modify 'id_pizza'.
+ * parameters:
+ * - name: id
+ * in: path
+ * required: true
+ * schema:
+ * type: integer
+ * requestBody:
+ * content:
+ * application/json:
+ * schema:
+ * $ref: "#/components/schemas/pizza"
+ * responses:
+ * 201:
+ * description: Update successful.
+ * 400:
+ * description: Invalid field or empty body.
+ */
 /* Patch pizza (partial update) */
 router.patch('/:id', async (req, res) => {
     try {
@@ -289,6 +272,23 @@ router.patch('/:id', async (req, res) => {
     }
 });
 
+/**
+ * @openapi
+ * /pizzas/{id}:
+ * delete:
+ * summary: Delete a pizza.
+ * parameters:
+ * - name: id
+ * in: path
+ * required: true
+ * schema:
+ * type: integer
+ * responses:
+ * 201:
+ * description: Pizza deleted (status 201 used in current code).
+ * 500:
+ * description: Database error.
+ */
 /* DELETE */
 router.delete('/:id', async (req, res) => {
     try {
