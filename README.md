@@ -92,9 +92,7 @@ npm run dev
 
 The API will be available at:
 
-```text
-http://localhost:3000/
-```
+[http://localhost:3000/](http://localhost:3000/)
 
 ## 2- Technologies Used
 
