@@ -292,16 +292,24 @@ router.patch('/:id', async (req, res) => {
 /* DELETE */
 router.delete('/:id', async (req, res) => {
     try {
+        let exists = 1
         const id = parseInt(req.params.id);
+        let [pizzaFetch] = await db.query('SELECT * FROM pizza WHERE id_pizza = ?', id);
+
+        if (pizzaFetch.length === 0) {
+            pizzaFetch = "La pizza avec l'id: '" + id + "' n'existe pas.";
+        }
+
         const resDeletePizza = await db.query(`
         DELETE FROM pizza 
         WHERE id_pizza = ?`,
         id);
 
-        let [pizzaFetch] = await db.query('SELECT * FROM pizza WHERE id_pizza = ?', id);
-
-        if (pizzaFetch.length === 0) {
-            pizzaFetch = "La pizza avec l'id: '" + id + "' n'existe pas.";
+        if (exists === 1) {
+            [pizzaFetch] = await db.query('SELECT * FROM pizza WHERE id_pizza = ?', id);
+            if (pizzaFetch.length === 0){
+                pizzaFetch = "La pizza avec l'id: '" + id + "' a été supprimée.";
+            }
         }
 
         return res.status(201).json({

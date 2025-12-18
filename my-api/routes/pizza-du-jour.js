@@ -198,4 +198,37 @@ router.patch('/:id', async (req, res) => {
         res.status(500).send('Database error');
     }
 });
+
+/* DELETE */
+router.delete('/:id', async (req, res) => {
+    try {
+        let exists = 1
+        const id = parseInt(req.params.id);
+        let [pizzaFetch] = await db.query('SELECT * FROM promotion WHERE id_promotion = ?', id);
+
+        if (pizzaFetch.length === 0) {
+            pizzaFetch = "La promotion avec l'id: '" + id + "' n'existe pas.";
+        }
+
+        const resDeletePizzaDuJour = await db.query(`
+        DELETE FROM promotion 
+        WHERE id_promotion = ?`,
+            id);
+
+        if (exists === 1) {
+            [pizzaFetch] = await db.query('SELECT * FROM promotion WHERE id_promotion = ?', id);
+            if (pizzaFetch.length === 0){
+                pizzaFetch = "La promotion avec l'id: '" + id + "' a été supprimée.";
+            }
+        }
+
+        return res.status(201).json({
+            resDeletePizzaDuJour,
+            pizzaFetch
+        })
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Database error');
+    }
+})
 export default router;
