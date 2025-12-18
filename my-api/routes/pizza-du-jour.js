@@ -199,6 +199,36 @@ router.patch('/:id', async (req, res) => {
     }
 });
 
+/**
+ * @openapi
+ * /pizza-du-jour/{id}:
+ * delete:
+ * summary: Delete a promotion.
+ * description: Remove a specific promotion offer by its ID.
+ * parameters:
+ * - name: id
+ * in: path
+ * required: true
+ * description: The ID of the promotion to delete.
+ * schema:
+ * type: integer
+ * responses:
+ * 201:
+ * description: Successfully processed the request. Returns deletion status and a confirmation message.
+ * content:
+ * application/json:
+ * schema:
+ * type: object
+ * properties:
+ * resDeletePizzaDuJour:
+ * type: object
+ * description: The raw response from the database.
+ * pizzaFetch:
+ * type: string
+ * description: A message confirming if the promotion existed or was successfully deleted.
+ * 500:
+ * description: Database error.
+ */
 /* DELETE */
 router.delete('/:id', async (req, res) => {
     try {
@@ -207,6 +237,7 @@ router.delete('/:id', async (req, res) => {
         let [pizzaFetch] = await db.query('SELECT * FROM promotion WHERE id_promotion = ?', id);
 
         if (pizzaFetch.length === 0) {
+            exists = 0
             pizzaFetch = "La promotion avec l'id: '" + id + "' n'existe pas.";
         }
 

@@ -297,6 +297,7 @@ router.delete('/:id', async (req, res) => {
         let [pizzaFetch] = await db.query('SELECT * FROM pizza WHERE id_pizza = ?', id);
 
         if (pizzaFetch.length === 0) {
+            exists = 0
             pizzaFetch = "La pizza avec l'id: '" + id + "' n'existe pas.";
         }
 
