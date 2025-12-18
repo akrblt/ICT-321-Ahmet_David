@@ -91,6 +91,8 @@ import db from '../db/db.js';
  *     responses:
  *       200:
  *         description: Deletion processed.
+ *       400:
+ *         description: Ingredient not found
  *       500:
  *         description: Database error.
  */
@@ -186,13 +188,12 @@ router.patch('/:id', async (req, res) => {
 // Delete ingredient by id //
 router.delete('/:id', async (req, res) => {
     try {
-        let exists = 1
         const id = parseInt(req.params.id);
         let [ingredientFetch] = await db.query('SELECT * FROM ingredient WHERE id_ingredient = ?', id);
 
         if (ingredientFetch.length === 0) {
-            exists = 0
             ingredientFetch = "L'ingrédient avec l'id: '" + id + "' n'existe pas.";
+            return res.status(400).json(ingredientFetch)
         }
 
         const resDeleteIngredient = await db.query(`
@@ -200,11 +201,9 @@ router.delete('/:id', async (req, res) => {
         WHERE id_ingredient = ?`,
             id);
 
-        if (exists === 1) {
-            [ingredientFetch] = await db.query('SELECT * FROM ingredient WHERE id_ingredient = ?', id);
-            if (ingredientFetch.length === 0){
-                ingredientFetch = "L'ingredient avec l'id: '" + id + "' a été supprimé.";
-            }
+        [ingredientFetch] = await db.query('SELECT * FROM ingredient WHERE id_ingredient = ?', id);
+        if (ingredientFetch.length === 0){
+            ingredientFetch = "L'ingredient avec l'id: '" + id + "' a été supprimé.";
         }
 
         return res.status(200).json({

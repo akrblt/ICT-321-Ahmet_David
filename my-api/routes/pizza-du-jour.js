@@ -99,6 +99,8 @@ const router = express.Router();
  *                 pizzaFetch:
  *                   type: string
  *                   description: Confirmation message.
+ *       400:
+ *         description: Promotion not found
  *       500:
  *         description: Database error.
  */
@@ -189,13 +191,12 @@ router.patch('/:id', async (req, res) => {
 /* DELETE */
 router.delete('/:id', async (req, res) => {
     try {
-        let exists = 1
         const id = parseInt(req.params.id);
         let [pizzaFetch] = await db.query('SELECT * FROM promotion WHERE id_promotion = ?', id);
 
         if (pizzaFetch.length === 0) {
-            exists = 0
             pizzaFetch = "La promotion avec l'id: '" + id + "' n'existe pas.";
+            return res.status(400).json(pizzaFetch)
         }
 
         const resDeletePizzaDuJour = await db.query(`
@@ -203,11 +204,9 @@ router.delete('/:id', async (req, res) => {
         WHERE id_promotion = ?`,
             id);
 
-        if (exists === 1) {
-            [pizzaFetch] = await db.query('SELECT * FROM promotion WHERE id_promotion = ?', id);
-            if (pizzaFetch.length === 0){
-                pizzaFetch = "La promotion avec l'id: '" + id + "' a été supprimée.";
-            }
+        [pizzaFetch] = await db.query('SELECT * FROM promotion WHERE id_promotion = ?', id);
+        if (pizzaFetch.length === 0){
+            pizzaFetch = "La promotion avec l'id: '" + id + "' a été supprimée.";
         }
 
         return res.status(200).json({
