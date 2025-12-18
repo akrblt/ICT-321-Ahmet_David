@@ -38,7 +38,7 @@ router.get('/', async (req, res, next) => {
 // Create pizza du jour
 /**
  * @openapi
- * /pizzas/pizzadujour/create:
+ * /pizzadujour:
  *   post:
  *     summary: create an offer for a pizza.
  *     description: post an offer with a start and finish date for a pizza.
@@ -105,4 +105,45 @@ router.post('/', async (req, res, next) => {
     }
 });
 
+/* Patch pizza du jour (partial update) */
+router.patch('/:id', async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        const updates = [];
+        const values = [];
+
+        for (const key in req.body) {
+            if (key !== "id_promotion"){        /* empêcher de modifier l'id */
+                updates.push(`${key}= ?`);
+                values.push(req.body[key]);
+            } else {
+                return res.status(400).json({
+                    error: "Le champ 'id_promotion' ne peut pas être modifié.",
+                });
+            }
+        }
+
+        if (updates.length === 0) {         /* empêcher le patch vide */
+            return res.status(400).json({
+                error: "Aucun champ valide à mettre à jour.",
+            });
+        }
+
+        const resPatchPizzaDuJour = await db.query(`
+            UPDATE promotion
+            SET ${updates.join(', ')}
+            WHERE id_promotion = ${id}
+        `, values);
+
+        const [pizzadujour] = await db.query('SELECT * FROM promotion WHERE id_promotion = ?', id);
+
+        return res.status(201).json({
+            resPatchPizzaDuJour,
+            pizzadujour
+        })
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Database error');
+    }
+});
 export default router;
