@@ -247,8 +247,7 @@ router.post('/', async (req, res, next) => {
 });
 
 
-/* PATCH : partial UPDATE */
-/* Patch pizza */
+/* Patch pizza (partial update) */
 router.patch('/:id', async (req, res) => {
     try {
         const id = parseInt(req.params.id);
