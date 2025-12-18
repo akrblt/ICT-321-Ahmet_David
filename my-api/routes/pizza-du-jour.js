@@ -81,7 +81,7 @@ router.get('/', async (req, res, next) => {
  *       500:
  *         description: system exception describing the error.
  */
-router.post('/pizzadujour/create', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
     const {id_pizza, date_start, date_finish, rabais} = req.body;
     if (!id_pizza || !date_start || !date_finish || rabais == null) {
         return res.status(400).json({
