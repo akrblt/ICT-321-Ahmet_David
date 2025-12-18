@@ -110,6 +110,36 @@ router.get('/', async (req, res, next) => {
     }
 })
 
+// Get pizza by id
+/**
+ * @openapi
+ * /pizzas/:id:
+ *   get:
+ *     summary: returns the pizza selected.
+ *     description: get pizza with id in query.
+ *     responses:
+ *       200:
+ *         description: Returns the body of a pizza.
+ *         content:
+ *             application/json:
+ *              schema:
+ *                  type: array
+ *                  items:
+ *                    $ref: "#/components/schemas/pizza"
+ *       500:
+ *         description: system exception describing the error.
+ */
+router.get('/:id', async (req, res, next) => {
+    try {
+        const [rows] = await db.query(' select p.* from pizza p where p.id_pizza =? ',
+            [req.params.id]);
+        res.json(rows);
+    } catch (err){
+        console.error(err);
+        res.status(500).send('Database error');
+    }
+})
+
 // Get ingredients by pizza id
 /**
  * @openapi
