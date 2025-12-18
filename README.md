@@ -1,73 +1,122 @@
 # ICT-321 – Ahmet & David Pizza API
 
-This project is a simple Node.js + Express REST API designed for learning routing, database access, and API structure.
-The application connects to a MySQL database and exposes endpoints for pizzas and ingredients
+This project is a simple **Node.js + Express REST API** designed for learning routing, database access, and API structure.
+The application connects to a **MySQL** database and exposes endpoints for pizzas and ingredients.
+
 
 ## 1- Installation & Setup
 
 Follow the steps below to install and run the project on your machine.
 
-### 1- Install Node.js & npm
+### 1.1- Install Node.js & npm
 
-If you don’t have Node.js installed, download it from: <br>
-👉 https://nodejs.org/ <br>
-Verify installation: <br>
-node -v <br>
-npm -v <br>
+If you don’t have Node.js installed, download it from:
+👉 [https://nodejs.org/](https://nodejs.org/)
 
-### 2- Clone or Download the Project
-You can use IntelliJ IDEA or WebStorm or another IDE  to clone the project. <br> 
-If using Git: <br>
-git clone https://github.com/your-repo/ICT-321-Ahmet_David.git <br>
-Open the terminal <br>
-You must see a file path similar to this PS C:\xxxxxxx\xxxxx\xxxxxx\xxxx\ICT-321-Ahmet_David> <br>
-cd my-api <br>
+Verify installation:
 
-### 3- Install Dependencies
+```bash
+node -v
+npm -v
+```
 
-Inside the my-api folder, run: <br>
-npm install  <br>
-This installs packages such as: <br>
-express ,morgan ,mysql2 <br>
-After installation, you should see a node_modules/ folder.
+### 1.2- Clone or Download the Project
 
-### 4- Configure the Database Connection
+You can use **IntelliJ IDEA**, **WebStorm**, or any other IDE to clone the project.
 
-Your API reads database config from: <br>
-📁 my-api/db/db.js <br> 
-📁 docs/app_pizza.sql => You can find database create script <br> 
-✔ Ensure your MySQL server is running <br>
-✔ Ensure pizza_app database exists <br> 
-✔ Ensure table names match your SQL file <br>
+If using Git:
 
-### 5- Start the API
+```bash
+git clone https://github.com/your-repo/ICT-321-Ahmet_David.git
+```
 
-npm start <br>
-or <br>
-npm run dev <br>
-http://localhost:3000/
+Open the terminal. You should see a file path similar to:
+
+```text
+PS C:\xxxxxxx\xxxxx\xxxxxx\xxxx\ICT-321-Ahmet_David>
+```
+
+Navigate to the API folder:
+
+```bash
+cd my-api
+```
+
+### 1.3- Install Dependencies
+
+Inside the **my-api** folder, run:
+
+```bash
+npm install
+```
+
+This installs packages such as:
+
+* express
+* morgan
+* mysql2
+
+After installation, you should see a **node_modules/** folder.
+
+### 1.4- Configure the Database Connection
+
+Your API reads database configuration from:
+
+```text
+my-api/db/db.js
+```
+
+Database creation script:
+
+```text
+docs/app_pizza.sql
+```
+
+✔ Ensure your MySQL server is running
+✔ Ensure the **pizza_app** database exists
+✔ Ensure table names match the SQL file
+
+### 1.5- Start the API
+
+Start the application using one of the following commands:
+
+```bash
+npm start
+```
+
+or
+
+```bash
+npm run dev
+```
+
+The API will be available at:
+
+[http://localhost:3000/](http://localhost:3000/)
 
 ## 2- Technologies Used
 
-Node.js <br>
-Express.js <br>
-MySQL2 <br>
-REST API <br>
+* Node.js
+* Express.js
+* MySQL2
+* REST API
 
 ## 3- API Usage
-You can find all the necessary information at this link. <br>
-### 👉 https://github.com/akrblt/ICT-321-Ahmet_David/wiki
 
-## 4- Swagger documentation
-Contains all routes documentation.
+You can find all the necessary API usage information at the link below:
 
-First you must install swagger ui with:
-npm install swagger-jsdoc swagger-ui-express  
+👉 [https://github.com/akrblt/ICT-321-Ahmet_David/wiki](https://github.com/akrblt/ICT-321-Ahmet_David/wiki)
 
-Then start the api and go to:
-http://localhost:3000/api-docs/
+## 4- Swagger Documentation
 
+The project includes **Swagger UI** for API route documentation.
 
+First, install Swagger dependencies:
 
+```bash
+npm install swagger-jsdoc swagger-ui-express
+```
 
+Then start the API and open:
 
+[Routage Documentation](http://localhost:3000/api-docs/)
