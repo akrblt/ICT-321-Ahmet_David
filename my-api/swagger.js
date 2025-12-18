@@ -8,72 +8,66 @@ const options = {
             description: 'API REST pour chercher, ajouter, mettre à jour, supprimer des pizzas, des ingrédients et des pizzas en promotion.',
             version: '1.0.0',
         },
-        servers : [
+        servers: [
             {
-                url : 'http://localhost:3000',
+                url: 'http://localhost:3000',
             },
         ],
-        "components":
-            {
-                "schemas":
-                    {
-                        "pizza":
-                            {
-                                "properties":
-                                    {
-                                        "id_pizza": { "type": "integer", "example" :1, "description":"id de la pizza" },
-                                        "name": { "type": "string", "example" :"4 fromages", "description" : "nom de la pizza"  },
-                                        "description" : { "type": "string", "example" :"?", "description" : ""  },
-                                        "prix" : {"type": "float", "example" :"8.95", "description" : "prix de la pizza" },
-                                        "image" : {"type": "?", "example" :"?", "description" : "image de la pizza" },
-                                        "id_categorie" : {"type": "integer", "example" :2, "description" : "id de la catégorie de la pizza" }
-                                    },
-                            },
-                        "ingredient":
-                            {
-                                "properties":
-                                    {
-                                        "id_ingredient": { "type": "integer", "example" :1, "description":"id de l'ingrédients" },
-                                        "name": { "type": "string", "example" :"sucre", "description" : "nom de l'ingrédient"  }
-                                    },
-                            },
-                        "composer":
-                            {
-                                "properties":
-                                    {
-                                        "id_pizza": { "type": "integer", "example" :1, "description":"id de la pizza" },
-                                        "id_ingredient": { "type": "integer", "example" :1, "description":"id de l'ingrédient" }
-                                    },
-                            },
-                        "promotion":
-                            {
-                                "properties":
-                                    {
-                                        "id_promotion": { "type": "integer", "example" :1, "description":"id de la promotion" },
-                                        "id_pizza": { "type": "integer", "example" :1, "description":"id de la pizza en promotion" },
-                                        "date_start": { "type": "integer", "example" :"2025-12-04", "description":"date du début de la promotion de la pizza" },
-                                        "date_finish": { "type": "integer", "example" :"2025-12-31", "description":"date de fin de la promotion de la pizza" },
-                                        "rabais": { "type": "float", "example" :5.00, "description":"rabais sur la pizza" },
-                                    },
-                            },
-                        "pizzadujour":
-                            {
-                                "properties":
-                                    {
-                                        "id_pizza": { "type": "integer", "example" :1, "description":"id de la pizza en promotion" },
-                                        "name": { "type": "string", "example" :"4 fromages", "description" : "nom de la pizza"  },
-                                        "prix" : {"type": "float", "example" :8.95, "description" : "prix de base de la pizza" },
-                                        "rabais": { "type": "float", "example" :5.00, "description":"rabais sur la pizza" },
-                                        "prix_final": { "type": "float", "example" :4.95, "description":"prix final de la pizza" },
-                                        "date_start": { "type": "integer", "example" :"2025-12-04", "description":"date du début de la promotion de la pizza" },
-                                        "date_finish": { "type": "integer", "example" :"2025-12-31", "description":"date de fin de la promotion de la pizza" },
-                                    },
-                            },
+        components: {
+            schemas: {
+                pizza: {
+                    type: "object",
+                    properties: {
+                        id_pizza: { type: "integer", example: 1, description: "ID unique de la pizza" },
+                        name: { type: "string", example: "4 fromages", description: "Nom de la pizza" },
+                        description: { type: "string", example: "Mélange de mozzarella, gorgonzola, chèvre et emmental", description: "Description des garnitures" },
+                        prix: { type: "number", format: "float", example: 8.95, description: "Prix en euros" },
+                        image: { type: "string", example: "4-fromages.jpg", description: "Nom du fichier image ou URL" },
+                        id_categorie: { type: "integer", example: 2, description: "ID de la catégorie associée" }
                     },
-            }
+                },
+                ingredient: {
+                    type: "object",
+                    properties: {
+                        id_ingredient: { type: "integer", example: 1, description: "ID de l'ingrédient" },
+                        name: { type: "string", example: "Mozzarella", description: "Nom de l'ingrédient" }
+                    },
+                },
+                composer: {
+                    type: "object",
+                    properties: {
+                        id_pizza: { type: "integer", example: 1 },
+                        id_ingredient: { type: "integer", example: 1 }
+                    },
+                },
+                promotion: {
+                    type: "object",
+                    properties: {
+                        id_promotion: { type: "integer", example: 1 },
+                        id_pizza: { type: "integer", example: 1 },
+                        date_start: { type: "string", format: "date", example: "2025-12-04", description: "Date de début (YYYY-MM-DD)" },
+                        date_finish: { type: "string", format: "date", example: "2025-12-31", description: "Date de fin (YYYY-MM-DD)" },
+                        rabais: { type: "number", format: "float", example: 2.50, description: "Montant à déduire du prix de base" },
+                    },
+                },
+                pizzadujour: {
+                    type: "object",
+                    properties: {
+                        id_promotion: { type: "integer", example: 1 },
+                        id_pizza: { type: "integer", example: 1 },
+                        name: { type: "string", example: "Margherita" },
+                        prix: { type: "number", format: "float", example: 12.50, description: "Prix original" },
+                        rabais: { type: "number", format: "float", example: 2.00 },
+                        prix_final: { type: "number", format: "float", example: 10.50, description: "Prix après rabais" },
+                        date_start: { type: "string", format: "date", example: "2025-12-18" },
+                        date_finish: { type: "string", format: "date", example: "2025-12-25" },
+                    },
+                },
+            },
+        }
     },
-    apis: ['./routes/*.js'], // files containing annotations as above
+    apis: ['./routes/*.js'],
 };
 
 const openApiSpecification = swaggerJsdoc(options);
-export {openApiSpecification};
+export { openApiSpecification };
