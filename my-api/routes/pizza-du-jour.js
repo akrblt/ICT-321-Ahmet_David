@@ -1,68 +1,108 @@
 import express from 'express';
 import db from '../db/db.js';
 const router = express.Router();
-/**
- * @openapi
- * components:
- * schemas:
- * promotion:
- * type: object
- * properties:
- * id_promotion:
- * type: integer
- * id_pizza:
- * type: integer
- * date_start:
- * type: string
- * format: date
- * date_finish:
- * type: string
- * format: date
- * rabais:
- * type: number
- * format: float
- * pizzadujour:
- * type: object
- * properties:
- * id_promotion:
- * type: integer
- * id_pizza:
- * type: integer
- * name:
- * type: string
- * prix:
- * type: number
- * rabais:
- * type: number
- * prix_final:
- * type: number
- * date_start:
- * type: string
- * format: date
- * date_finish:
- * type: string
- * format: date
- */
 
-/* Read pizza du jour */
 /**
  * @openapi
  * /pizza-du-jour:
- * get:
- * summary: Returns the pizza(s) of the day.
- * description: Fetches pizzas currently on promotion based on the system date.
- * responses:
- * 200:
- * description: A list of pizzas currently on sale with calculated final prices.
- * content:
- * application/json:
- * schema:
- * type: array
- * items:
- * $ref: "#/components/schemas/pizzadujour"
- * 500:
- * description: Database error.
+ *   get:
+ *     summary: Returns the pizza of the day
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/pizzadujour'
+ *
+ *   post:
+ *     summary: Create a new promotion for a pizza.
+ *     description: Add a discount for a pizza with specific start and end dates.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id_pizza
+ *               - date_start
+ *               - date_finish
+ *               - rabais
+ *             properties:
+ *               id_pizza:
+ *                 type: integer
+ *               date_start:
+ *                 type: string
+ *                 format: date
+ *               date_finish:
+ *                 type: string
+ *                 format: date
+ *               rabais:
+ *                 type: number
+ *     responses:
+ *       201:
+ *         description: Promotion created successfully.
+ *       400:
+ *         description: Missing required fields.
+ *       500:
+ *         description: Database error.
+ *
+ * /pizza-du-jour/{id}:
+ *   patch:
+ *     summary: Partially update a promotion.
+ *     description: Modify specific fields (dates, discount amount) of an existing promotion.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/promotion'
+ *     responses:
+ *       201:
+ *         description: Promotion updated successfully.
+ *       400:
+ *         description: Invalid field or empty body.
+ *       500:
+ *         description: Database error.
+ *
+ *   delete:
+ *     summary: Delete a promotion.
+ *     description: Remove a specific promotion offer by its ID.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: The ID of the promotion to delete.
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       201:
+ *         description: Successfully processed the request.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 resDeletePizzaDuJour:
+ *                   type: object
+ *                   description: The raw response from the database.
+ *                 pizzaFetch:
+ *                   type: string
+ *                   description: Confirmation message.
+ *       500:
+ *         description: Database error.
  */
+
+/* READ */
+/* Read pizza du jour */
 router.get('/', async (req, res, next) => {
     try {
         const [rows] = await db.query('SELECT pr.id_promotion, pi.id_pizza, pi.name, pi.prix, pr.rabais, (pi.prix - pr.rabais) AS prix_final, pr.date_start, pr.date_finish\n' +
@@ -78,38 +118,6 @@ router.get('/', async (req, res, next) => {
 });
 
 // Create pizza du jour
-/**
- * @openapi
- * /pizza-du-jour:
- * post:
- * summary: Create a new promotion for a pizza.
- * description: Add a discount for a pizza with specific start and end dates.
- * requestBody:
- * required: true
- * content:
- * application/json:
- * schema:
- * type: object
- * required: [id_pizza, date_start, date_finish, rabais]
- * properties:
- * id_pizza:
- * type: integer
- * date_start:
- * type: string
- * format: date
- * date_finish:
- * type: string
- * format: date
- * rabais:
- * type: number
- * responses:
- * 201:
- * description: Promotion created successfully.
- * 400:
- * description: Missing required fields.
- * 500:
- * description: Database error.
- */
 router.post('/', async (req, res, next) => {
     const {id_pizza, date_start, date_finish, rabais} = req.body;
     if (!id_pizza || !date_start || !date_finish || rabais == null) {
@@ -134,29 +142,6 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-/**
- * @openapi
- * /pizza-du-jour/{id}:
- * patch:
- * summary: Partially update a promotion.
- * description: Modify specific fields (dates, discount amount) of an existing promotion.
- * parameters:
- * - name: id
- * in: path
- * required: true
- * schema:
- * type: integer
- * requestBody:
- * content:
- * application/json:
- * schema:
- * $ref: "#/components/schemas/promotion"
- * responses:
- * 201:
- * description: Promotion updated successfully.
- * 400:
- * description: Invalid field or empty body.
- */
 /* Patch pizza du jour (partial update) */
 router.patch('/:id', async (req, res) => {
     try {
@@ -199,36 +184,6 @@ router.patch('/:id', async (req, res) => {
     }
 });
 
-/**
- * @openapi
- * /pizza-du-jour/{id}:
- * delete:
- * summary: Delete a promotion.
- * description: Remove a specific promotion offer by its ID.
- * parameters:
- * - name: id
- * in: path
- * required: true
- * description: The ID of the promotion to delete.
- * schema:
- * type: integer
- * responses:
- * 201:
- * description: Successfully processed the request. Returns deletion status and a confirmation message.
- * content:
- * application/json:
- * schema:
- * type: object
- * properties:
- * resDeletePizzaDuJour:
- * type: object
- * description: The raw response from the database.
- * pizzaFetch:
- * type: string
- * description: A message confirming if the promotion existed or was successfully deleted.
- * 500:
- * description: Database error.
- */
 /* DELETE */
 router.delete('/:id', async (req, res) => {
     try {

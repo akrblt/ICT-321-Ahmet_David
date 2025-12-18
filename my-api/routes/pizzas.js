@@ -4,54 +4,113 @@ const router = express.Router();
 
 /**
  * @openapi
- * components:
- * schemas:
- * pizza:
- * type: object
- * properties:
- * id_pizza:
- * type: integer
- * name:
- * type: string
- * description:
- * type: string
- * prix:
- * type: number
- * format: float
- * image:
- * type: string
- * id_categorie:
- * type: integer
+ * /pizzas:
+ *   get:
+ *     summary: Returns a list of pizzas
+ *     parameters:
+ *       - name: id
+ *         in: query
+ *         schema:
+ *           type: integer
+ *       - name: name
+ *         in: query
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/pizza'
+ *
+ *   post:
+ *     summary: Create a new pizza.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - prix
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               prix:
+ *                 type: number
+ *               image:
+ *                 type: string
+ *               id_categorie:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Pizza created successfully.
+ *
+ * /pizzas/{id}:
+ *   get:
+ *     summary: Returns a specific pizza.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: A pizza object.
+ *       404:
+ *         description: Pizza not found.
+ *
+ *   patch:
+ *     summary: Partially update a pizza.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/pizza'
+ *     responses:
+ *       201:
+ *         description: Update successful.
+ *
+ *   delete:
+ *     summary: Delete a pizza.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       201:
+ *         description: Deleted.
+ *
+ * /pizzas/{id}/ingredients:
+ *   get:
+ *     summary: Returns ingredients for a pizza.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: List of ingredients.
  */
-
 /* READ */
 /* Read all pizzas */
-
-/**
- * @openapi
-* /pizzas:
-* get:
-* summary: Returns a list of pizzas.
-* description: Get all pizzas in the menu. Supports filtering via query parameters.
-* parameters:
-* - name: id
-* in: query
-* schema:
-* type: integer
-* - name: name
-* in: query
-* schema:
-* type: string
-* responses:
-* 200:
-* description: Array of pizzas.
-* content:
-* application/json:
-* schema:
-* type: array
-* items:
-* $ref: "#/components/schemas/pizza"
-* */
 router.get('/', async (req, res, next) => {
     try {
         const filters = req.query;
@@ -102,23 +161,6 @@ router.get('/', async (req, res, next) => {
 })
 
 // Read pizza by id
-/**
- * @openapi
- * /pizzas/{id}:
- * get:
- * summary: Returns a specific pizza.
- * parameters:
- * - name: id
- * in: path
- * required: true
- * schema:
- * type: integer
- * responses:
- * 200:
- * description: A pizza object.
- * 404:
- * description: Pizza not found.
- */
 router.get('/:id', async (req, res, next) => {
     try {
         const [rows] = await db.query(' select p.* from pizza p where p.id_pizza =? ',
@@ -130,22 +172,6 @@ router.get('/:id', async (req, res, next) => {
     }
 })
 
-// Read ingredients by pizza id
-/**
- * @openapi
- * /pizzas/{id}/ingredients:
- * get:
- * summary: Returns ingredients for a pizza.
- * parameters:
- * - name: id
- * in: path
- * required: true
- * schema:
- * type: integer
- * responses:
- * 200:
- * description: List of ingredients.
- */
 router.get('/:id/ingredients', async (req, res, next) => {
     try {
         const [rows] = await db.query(' select i.* from ingredient i join composer c on i.id_ingredient= c.id_ingredient where c.id_pizza =? ',
@@ -159,30 +185,6 @@ router.get('/:id/ingredients', async (req, res, next) => {
 
 /* WRITE */
 /* Create pizza */
-/**
- * @openapi
- * /pizzas:
- * post:
- * summary: Create a new pizza.
- * requestBody:
- * required: true
- * content:
- * application/json:
- * schema:
- * type: object
- * required: [name, prix]
- * properties:
- * name: { type: string }
- * description: { type: string }
- * prix: { type: number }
- * image: { type: string }
- * id_categorie: { type: integer }
- * responses:
- * 201:
- * description: Pizza created successfully.
- * 400:
- * description: Missing required fields.
- */
 router.post('/', async (req, res, next) => {
     try {
         const {name, description, prix, image, id_categorie} = req.body;
@@ -207,29 +209,6 @@ router.post('/', async (req, res, next) => {
     }
 });
 
-/**
- * @openapi
- * /pizzas/{id}:
- * patch:
- * summary: Partially update a pizza.
- * description: Update specific fields of a pizza. Cannot modify 'id_pizza'.
- * parameters:
- * - name: id
- * in: path
- * required: true
- * schema:
- * type: integer
- * requestBody:
- * content:
- * application/json:
- * schema:
- * $ref: "#/components/schemas/pizza"
- * responses:
- * 201:
- * description: Update successful.
- * 400:
- * description: Invalid field or empty body.
- */
 /* Patch pizza (partial update) */
 router.patch('/:id', async (req, res) => {
     try {
@@ -272,23 +251,6 @@ router.patch('/:id', async (req, res) => {
     }
 });
 
-/**
- * @openapi
- * /pizzas/{id}:
- * delete:
- * summary: Delete a pizza.
- * parameters:
- * - name: id
- * in: path
- * required: true
- * schema:
- * type: integer
- * responses:
- * 201:
- * description: Pizza deleted (status 201 used in current code).
- * 500:
- * description: Database error.
- */
 /* DELETE */
 router.delete('/:id', async (req, res) => {
     try {
