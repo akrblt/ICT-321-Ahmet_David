@@ -16,6 +16,8 @@ const router = express.Router();
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/pizzadujour'
+ *       500:
+ *         description: Database error.
  *
  *   post:
  *     summary: Create a new promotion for a pizza.
@@ -43,7 +45,7 @@ const router = express.Router();
  *               rabais:
  *                 type: number
  *     responses:
- *       201:
+ *       200:
  *         description: Promotion created successfully.
  *       400:
  *         description: Missing required fields.
@@ -66,7 +68,7 @@ const router = express.Router();
  *           schema:
  *             $ref: '#/components/schemas/promotion'
  *     responses:
- *       201:
+ *       200:
  *         description: Promotion updated successfully.
  *       400:
  *         description: Invalid field or empty body.
@@ -84,7 +86,7 @@ const router = express.Router();
  *         schema:
  *           type: integer
  *     responses:
- *       201:
+ *       200:
  *         description: Successfully processed the request.
  *         content:
  *           application/json:
@@ -129,7 +131,7 @@ router.post('/', async (req, res, next) => {
 
         const[result] = await db.query('INSERT INTO promotion (id_pizza,date_start ,date_finish, rabais) VALUES (?, ?, ?, ?)', [ id_pizza, date_start, date_finish, rabais ]);
 
-        return res.status(201).json({
+        return res.status(200).json({
             id: result.insertId,
             id_pizza,
             date_start,
@@ -174,7 +176,7 @@ router.patch('/:id', async (req, res) => {
 
         const [pizzadujour] = await db.query('SELECT * FROM promotion WHERE id_promotion = ?', id);
 
-        return res.status(201).json({
+        return res.status(200).json({
             resPatchPizzaDuJour,
             pizzadujour
         })
@@ -208,7 +210,7 @@ router.delete('/:id', async (req, res) => {
             }
         }
 
-        return res.status(201).json({
+        return res.status(200).json({
             resDeletePizzaDuJour,
             pizzaFetch
         })

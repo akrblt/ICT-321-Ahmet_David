@@ -25,6 +25,8 @@ const router = express.Router();
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/pizza'
+ *       500:
+ *         description: Database error.
  *
  *   post:
  *     summary: Create a new pizza.
@@ -49,8 +51,10 @@ const router = express.Router();
  *               id_categorie:
  *                 type: integer
  *     responses:
- *       201:
+ *       200:
  *         description: Pizza created successfully.
+ *       500:
+ *         description: Database error.
  *
  * /pizzas/{id}:
  *   get:
@@ -66,6 +70,8 @@ const router = express.Router();
  *         description: A pizza object.
  *       404:
  *         description: Pizza not found.
+ *       500:
+ *         description: Database error.
  *
  *   patch:
  *     summary: Partially update a pizza.
@@ -81,8 +87,10 @@ const router = express.Router();
  *           schema:
  *             $ref: '#/components/schemas/pizza'
  *     responses:
- *       201:
+ *       200:
  *         description: Update successful.
+ *       500:
+ *         description: Database error.
  *
  *   delete:
  *     summary: Delete a pizza.
@@ -93,8 +101,10 @@ const router = express.Router();
  *         schema:
  *           type: integer
  *     responses:
- *       201:
+ *       200:
  *         description: Deleted.
+ *       500:
+ *         description: Database error.
  *
  * /pizzas/{id}/ingredients:
  *   get:
@@ -108,6 +118,8 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: List of ingredients.
+ *       500:
+ *         description: Database error.
  */
 /* READ */
 /* Read all pizzas */
@@ -165,7 +177,7 @@ router.get('/:id', async (req, res, next) => {
     try {
         const [rows] = await db.query(' select p.* from pizza p where p.id_pizza =? ',
             [req.params.id]);
-        res.json(rows);
+        res.status(200).json(rows);
     } catch (err){
         console.error(err);
         res.status(500).send('Database error');
@@ -176,7 +188,7 @@ router.get('/:id/ingredients', async (req, res, next) => {
     try {
         const [rows] = await db.query(' select i.* from ingredient i join composer c on i.id_ingredient= c.id_ingredient where c.id_pizza =? ',
             [req.params.id]);
-        res.json(rows);
+        res.status(200).json(rows);
     } catch (err){
         console.error(err);
         res.status(500).send('Database error');
@@ -198,7 +210,7 @@ router.post('/', async (req, res, next) => {
 
         const[result] = await db.query('INSERT INTO pizza (name, description, prix, image, id_categorie) VALUES (?, ?, ?, ?, ?)', [name, description, prix, image, id_categorie]);
 
-        return res.status(201).json({
+        return res.status(200).json({
             id: result.insertId,
             name,
             prix
@@ -241,7 +253,7 @@ router.patch('/:id', async (req, res) => {
 
         const [pizza] = await db.query('SELECT * FROM pizza WHERE id_pizza = ?', id);
             
-        return res.status(201).json({
+        return res.status(200).json({
             resPatchPizza,
             pizza
         })
@@ -275,7 +287,7 @@ router.delete('/:id', async (req, res) => {
             }
         }
 
-        return res.status(201).json({
+        return res.status(200).json({
             resDeletePizza,
             pizzaFetch
         })

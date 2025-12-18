@@ -16,6 +16,8 @@ import db from '../db/db.js';
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/ingredient'
+ *       500:
+ *         description: Database error.
  *
  *   post:
  *     summary: Create a new ingredient.
@@ -35,6 +37,8 @@ import db from '../db/db.js';
  *         description: Ingredient created successfully.
  *       400:
  *         description: Name field is missing.
+ *       500:
+ *         description: Database error.
  *
  * /ingredients/{id}:
  *   get:
@@ -50,6 +54,8 @@ import db from '../db/db.js';
  *         description: An ingredient object.
  *       404:
  *         description: No ingredient found.
+ *       500:
+ *         description: Database error.
  *
  *   patch:
  *     summary: Partially update an ingredient.
@@ -66,10 +72,12 @@ import db from '../db/db.js';
  *           schema:
  *             $ref: '#/components/schemas/ingredient'
  *     responses:
- *       201:
+ *       200:
  *         description: Update successful.
  *       404:
  *         description: Attempted to modify primary key or other error.
+ *       500:
+ *         description: Database error.
  *
  *   delete:
  *     summary: Delete an ingredient.
@@ -81,8 +89,10 @@ import db from '../db/db.js';
  *         schema:
  *           type: integer
  *     responses:
- *       201:
+ *       200:
  *         description: Deletion processed.
+ *       500:
+ *         description: Database error.
  */
 
 // READ //
@@ -90,7 +100,7 @@ import db from '../db/db.js';
 router.get('/', async (req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM ingredient');
-        res.json(rows); // return json
+        res.status(200).json(rows); // return json
     } catch (err) {
         console.log(err);
         res.status(500).send("Error occurred");
@@ -103,7 +113,7 @@ router.get('/:id', async (req, res) => {
         const [rows] = await db.query('SELECT * FROM ingredient where id_ingredient = ?',
             [req.params.id]);
         if (rows.length === 0) return res.status(404).send("No ingredient found.");
-        res.json(rows[0]);
+        res.status(200).json(rows[0]);
     } catch (err){
         console.log(err);
         res.status(500).send("database error");
