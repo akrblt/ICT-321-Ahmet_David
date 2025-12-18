@@ -1,10 +1,128 @@
-var express = require('express');
-var router = express.Router();
-const db =require('../db/db.js');
+import express from 'express';
+const router = express.Router();
+import db from '../db/db.js';
 
-/* POST */
-/* Post ingredient */
-router.post('/create', async (req, res, next) => {
+/**
+ * @openapi
+ * /ingredients:
+ *   get:
+ *     summary: Returns a list of all ingredients.
+ *     responses:
+ *       200:
+ *         description: Array of all ingredients available.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/ingredient'
+ *       500:
+ *         description: Database error.
+ *
+ *   post:
+ *     summary: Create a new ingredient.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Ingredient created successfully.
+ *       400:
+ *         description: Name field is missing.
+ *       500:
+ *         description: Database error.
+ *
+ * /ingredients/{id}:
+ *   get:
+ *     summary: Returns a specific ingredient.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: An ingredient object.
+ *       404:
+ *         description: No ingredient found.
+ *       500:
+ *         description: Database error.
+ *
+ *   patch:
+ *     summary: Partially update an ingredient.
+ *     description: Update the name of an ingredient. id_ingredient cannot be modified.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ingredient_patch'
+ *     responses:
+ *       200:
+ *         description: Update successful.
+ *       404:
+ *         description: Attempted to modify primary key or other error.
+ *       500:
+ *         description: Database error.
+ *
+ *   delete:
+ *     summary: Delete an ingredient.
+ *     description: Removes an ingredient from the database. This will also remove it from any pizzas it was part of (Cascade).
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Deletion processed.
+ *       500:
+ *         description: Database error.
+ */
+
+// READ //
+// Read all ingredients
+router.get('/', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM ingredient');
+        res.status(200).json(rows); // return json
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Error occurred");
+    }
+})
+
+// Read ingredient by id
+router.get('/:id', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM ingredient where id_ingredient = ?',
+            [req.params.id]);
+        if (rows.length === 0) return res.status(404).send("No ingredient found.");
+        res.status(200).json(rows[0]);
+    } catch (err){
+        console.log(err);
+        res.status(500).send("database error");
+    }
+});
+
+/* WRITE */
+/* Create ingredient */
+router.post('/', async (req, res, next) => {
     try {
         const {name} = req.body;
         console.log(name)
@@ -17,7 +135,7 @@ router.post('/create', async (req, res, next) => {
 
         const[result] = await db.query('INSERT INTO ingredient (name) VALUES (?)', [name]);
 
-        return res.status(201).json({
+        return res.status(200).json({
             id: result.insertId,
             name
         });
@@ -27,35 +145,7 @@ router.post('/create', async (req, res, next) => {
     }
 });
 
-// GET //
-// Get all ingredients
-
-router.get('/', async (req, res) => {
-    try {
-        const [rows] = await db.query('SELECT * FROM ingredient');
-        res.json(rows); // return json
-    } catch (err) {
-        console.log(err);
-        res.status(500).send("Error occurred");
-    }
-})
-
-// Get ingredient by id
-
-router.get('/:id', async (req, res) => {
-    try {
-        const [rows] = await db.query('SELECT * FROM ingredient where id_ingredient = ?',
-            [req.params.id]);
-        if (rows.length === 0) return res.status(404).send("No ingredient found.");
-        res.json(rows[0]);
-    } catch (err){
-        console.log(err);
-        res.status(500).send("database error");
-    }
-});
-
-/* PATCH : partial UPDATE */
-/* Patch ingredients */
+/* Patch ingredient by id (partial update) */
 router.patch('/:id', async (req, res) => {
     try {
         const id = parseInt(req.params.id);
@@ -83,7 +173,7 @@ router.patch('/:id', async (req, res) => {
 
         const [ingredient] = await db.query('SELECT * FROM ingredient WHERE id_ingredient = ?', id);
 
-        return res.status(201).json({
+        return res.status(200).json({
             resPatchIngredients,
             ingredient
         })
@@ -93,22 +183,31 @@ router.patch('/:id', async (req, res) => {
     }
 });
 
-// DELETE //
+// Delete ingredient by id //
 router.delete('/:id', async (req, res) => {
     try {
+        let exists = 1
         const id = parseInt(req.params.id);
+        let [ingredientFetch] = await db.query('SELECT * FROM ingredient WHERE id_ingredient = ?', id);
+
+        if (ingredientFetch.length === 0) {
+            exists = 0
+            ingredientFetch = "L'ingrédient avec l'id: '" + id + "' n'existe pas.";
+        }
+
         const resDeleteIngredient = await db.query(`
         DELETE FROM ingredient 
         WHERE id_ingredient = ?`,
             id);
 
-        let [ingredientFetch] = await db.query('SELECT * FROM ingredient WHERE id_ingredient = ?', id);
-
-        if (ingredientFetch.length === 0) {
-            ingredientFetch = "L'ingrédient avec l'id: '" + id + "' n'existe pas.";
+        if (exists === 1) {
+            [ingredientFetch] = await db.query('SELECT * FROM ingredient WHERE id_ingredient = ?', id);
+            if (ingredientFetch.length === 0){
+                ingredientFetch = "L'ingredient avec l'id: '" + id + "' a été supprimé.";
+            }
         }
 
-        return res.status(201).json({
+        return res.status(200).json({
             resDeleteIngredient,
             ingredientFetch
         })
@@ -117,4 +216,5 @@ router.delete('/:id', async (req, res) => {
         res.status(500).send('Database error');
     }
 });
-module.exports = router;
+
+export default router;

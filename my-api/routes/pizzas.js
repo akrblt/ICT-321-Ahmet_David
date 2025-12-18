@@ -1,82 +1,203 @@
-var express = require('express');
-var router = express.Router();
-const db=require('../db/db.js');
+import express from 'express';
+import db from '../db/db.js';
+const router = express.Router();
 
-/* GET */
-/* Get all pizzas */
+/**
+ * @openapi
+ * /pizzas:
+ *   get:
+ *     summary: Returns a list of pizzas
+ *     parameters:
+ *       - name: id
+ *         in: query
+ *         schema:
+ *           type: integer
+ *       - name: name
+ *         in: query
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/pizza'
+ *       500:
+ *         description: Database error.
+ *
+ *   post:
+ *     summary: Create a new pizza.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - prix
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               prix:
+ *                 type: number
+ *               image:
+ *                 type: string
+ *               id_categorie:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Pizza created successfully.
+ *       500:
+ *         description: Database error.
+ *
+ * /pizzas/{id}:
+ *   get:
+ *     summary: Returns a specific pizza.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: A pizza object.
+ *       404:
+ *         description: Pizza not found.
+ *       500:
+ *         description: Database error.
+ *
+ *   patch:
+ *     summary: Partially update a pizza.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/pizza_patch'
+ *     responses:
+ *       200:
+ *         description: Update successful.
+ *       500:
+ *         description: Database error.
+ *
+ *   delete:
+ *     summary: Delete a pizza.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Deleted.
+ *       500:
+ *         description: Database error.
+ *
+ * /pizzas/{id}/ingredients:
+ *   get:
+ *     summary: Returns ingredients for a pizza.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: List of ingredients.
+ *       500:
+ *         description: Database error.
+ */
+/* READ */
+/* Read all pizzas */
 router.get('/', async (req, res, next) => {
     try {
-        const [rows] = await db.query('SELECT * FROM Pizza');
-        res.json(rows);  // Return all pizzas as JSON
+        const filters = req.query;
+
+        let sql = `
+        SELECT * 
+        FROM pizza 
+        WHERE 1 = 1`
+
+        let params = [];
+
+        if (filters.id) {
+            sql += " AND id_pizza = ?";
+            params.push(filters.id);
+        }
+
+        if (filters.name){
+            sql += " AND name LIKE ?";
+            params.push(filters.name);
+        }
+
+        if (filters.description){
+            sql += " AND description LIKE ?";
+            params.push(filters.description);
+        }
+
+        if (filters.prix) {
+            sql += " AND prix = ?";
+            params.push(`%${filters.prix}%`);
+        }
+
+        if (filters.image) {
+            sql += " AND image = ?";
+            params.push(`%${filters.image}%`);
+        }
+
+        if (filters.id_categorie) {
+            sql += " AND id_categorie = ?";
+            params.push(`%${filters.id_categorie}%`);
+        }
+
+        const [rows] = await db.query(sql, params);
+        res.status(200).json(rows);  // Return all pizzas as JSON
     } catch (err) {
         console.error(err);
         res.status(500).send('Database error');
     }
 })
 
-/* Get pizza of the day */
-router.get('/pizzadujour', async (req, res, next) => {
+// Read pizza by id
+router.get('/:id', async (req, res, next) => {
     try {
-        const [rows] = await db.query('SELECT * FROM promotion WHERE active = 1');
-        res.json(rows);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Database error');
-    }
-});
-// post pizzadujour
-router.post('/pizzadujour/create', async (req, res, next) => {
-    const {id_pizza, date_start, date_finish, rabais, active} = req.body;
-    if (!id_pizza || !date_start || !date_finish || active == null || rabais == null) {
-        return res.status(400).json({
-            error: "Les champs sont obligatoires.",
-        });
-    }
-    try {
-
-        const[result] = await db.query('INSERT INTO promotion (id_pizza,date_start ,date_finish, rabais, active) VALUES (?, ?, ?, ?, ?)', [ id_pizza, date_start, date_finish,rabais ,active]);
-
-        return res.status(201).json({
-            id: result.insertId,
-            id_pizza,
-            date_start,
-            date_finish,
-            rabais,
-            active
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Database error');
-    }
-});
-
-// Get ingredient by pizza id
-router.get('/:id/ingredient', async (req, res, next) => {
-    try {
-        const [rows] = await db.query(' select i.* from ingredient i join composer c on i.id_ingredient= c.id_ingredient where c.id_pizza =? ',
+        const [rows] = await db.query(' select p.* from pizza p where p.id_pizza =? ',
             [req.params.id]);
-        res.json(rows);
+        res.status(200).json(rows);
     } catch (err){
         console.error(err);
         res.status(500).send('Database error');
     }
 })
 
-/* Get pizza by id */
-router.get('/:id', async (req, res, next) => {
+router.get('/:id/ingredients', async (req, res, next) => {
     try {
-        const [rows] = await db.query('SELECT * FROM Pizza WHERE id_pizza = ?', [req.params.id]);
-        if (rows.length === 0) return res.status(404).send('Pizza not found');
-        res.json(rows[0]);
-    } catch (err) {
+        const [rows] = await db.query(' select i.* from ingredient i join composer c on i.id_ingredient= c.id_ingredient where c.id_pizza =? ',
+            [req.params.id]);
+        res.status(200).json(rows);
+    } catch (err){
         console.error(err);
         res.status(500).send('Database error');
     }
-});
+})
 
-/* POST */
-/* Post pizza */
-router.post('/create', async (req, res, next) => {
+/* WRITE */
+/* Create pizza */
+router.post('/', async (req, res, next) => {
     try {
         const {name, description, prix, image, id_categorie} = req.body;
         console.log(name)
@@ -89,7 +210,7 @@ router.post('/create', async (req, res, next) => {
 
         const[result] = await db.query('INSERT INTO pizza (name, description, prix, image, id_categorie) VALUES (?, ?, ?, ?, ?)', [name, description, prix, image, id_categorie]);
 
-        return res.status(201).json({
+        return res.status(200).json({
             id: result.insertId,
             name,
             prix
@@ -100,8 +221,7 @@ router.post('/create', async (req, res, next) => {
     }
 });
 
-/* PATCH : partial UPDATE */
-/* Patch pizza */
+/* Patch pizza (partial update) */
 router.patch('/:id', async (req, res) => {
     try {
         const id = parseInt(req.params.id);
@@ -133,7 +253,7 @@ router.patch('/:id', async (req, res) => {
 
         const [pizza] = await db.query('SELECT * FROM pizza WHERE id_pizza = ?', id);
             
-        return res.status(201).json({
+        return res.status(200).json({
             resPatchPizza,
             pizza
         })
@@ -146,19 +266,28 @@ router.patch('/:id', async (req, res) => {
 /* DELETE */
 router.delete('/:id', async (req, res) => {
     try {
+        let exists = 1
         const id = parseInt(req.params.id);
+        let [pizzaFetch] = await db.query('SELECT * FROM pizza WHERE id_pizza = ?', id);
+
+        if (pizzaFetch.length === 0) {
+            exists = 0
+            pizzaFetch = "La pizza avec l'id: '" + id + "' n'existe pas.";
+        }
+
         const resDeletePizza = await db.query(`
         DELETE FROM pizza 
         WHERE id_pizza = ?`,
         id);
 
-        let [pizzaFetch] = await db.query('SELECT * FROM pizza WHERE id_pizza = ?', id);
-
-        if (pizzaFetch.length === 0) {
-            pizzaFetch = "La pizza avec l'id: '" + id + "' n'existe pas.";
+        if (exists === 1) {
+            [pizzaFetch] = await db.query('SELECT * FROM pizza WHERE id_pizza = ?', id);
+            if (pizzaFetch.length === 0){
+                pizzaFetch = "La pizza avec l'id: '" + id + "' a été supprimée.";
+            }
         }
 
-        return res.status(201).json({
+        return res.status(200).json({
             resDeletePizza,
             pizzaFetch
         })
@@ -168,4 +297,4 @@ router.delete('/:id', async (req, res) => {
     }
 })
 
-module.exports = router;
+export default router;
