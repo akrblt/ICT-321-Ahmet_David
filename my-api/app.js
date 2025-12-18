@@ -7,6 +7,7 @@ import { openApiSpecification } from './swagger.js';
 import indexRouter from './routes/index.js';
 import pizzasRouter from './routes/pizzas.js';
 import ingredientsRouter from './routes/ingredients.js';
+import pizzadujourRouter from './routes/pizza-du-jour.js';
 
 const app = express();
 
@@ -30,5 +31,6 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openApiSpecification, { ex
 app.use('/', indexRouter);
 app.use('/pizzas', pizzasRouter);
 app.use('/ingredients', ingredientsRouter);
+app.use('/pizza-du-jour', pizzadujourRouter)
 
 export default app;
