@@ -2,9 +2,38 @@ import express from 'express';
 const router = express.Router();
 import db from '../db/db.js';
 
+/**
+ * @openapi
+ * components:
+ * schemas:
+ * ingredient:
+ * type: object
+ * properties:
+ * id_ingredient:
+ * type: integer
+ * name:
+ * type: string
+ * required:
+ * - name
+ */
 
 // READ //
 // Read all ingredients
+/**
+ * @openapi
+ * /ingredients:
+ * get:
+ * summary: Returns a list of all ingredients.
+ * responses:
+ * 200:
+ * description: Array of all ingredients available.
+ * content:
+ * application/json:
+ * schema:
+ * type: array
+ * items:
+ * $ref: "#/components/schemas/ingredient"
+ */
 router.get('/', async (req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM ingredient');
@@ -16,6 +45,23 @@ router.get('/', async (req, res) => {
 })
 
 // Read ingredient by id
+/**
+ * @openapi
+ * /ingredients/{id}:
+ * get:
+ * summary: Returns a specific ingredient.
+ * parameters:
+ * - name: id
+ * in: path
+ * required: true
+ * schema:
+ * type: integer
+ * responses:
+ * 200:
+ * description: An ingredient object.
+ * 404:
+ * description: No ingredient found.
+ */
 router.get('/:id', async (req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM ingredient where id_ingredient = ?',
@@ -30,6 +76,27 @@ router.get('/:id', async (req, res) => {
 
 /* WRITE */
 /* Create ingredient */
+/**
+ * @openapi
+ * /ingredients:
+ * post:
+ * summary: Create a new ingredient.
+ * requestBody:
+ * required: true
+ * content:
+ * application/json:
+ * schema:
+ * type: object
+ * required: [name]
+ * properties:
+ * name:
+ * type: string
+ * responses:
+ * 201:
+ * description: Ingredient created successfully.
+ * 400:
+ * description: Name field is missing.
+ */
 router.post('/', async (req, res, next) => {
     try {
         const {name} = req.body;
@@ -54,6 +121,29 @@ router.post('/', async (req, res, next) => {
 });
 
 /* Patch ingredient by id (partial update) */
+/**
+ * @openapi
+ * /ingredients/{id}:
+ * patch:
+ * summary: Partially update an ingredient.
+ * description: Update the name of an ingredient. id_ingredient cannot be modified.
+ * parameters:
+ * - name: id
+ * in: path
+ * required: true
+ * schema:
+ * type: integer
+ * requestBody:
+ * content:
+ * application/json:
+ * schema:
+ * $ref: "#/components/schemas/ingredient"
+ * responses:
+ * 201:
+ * description: Update successful.
+ * 404:
+ * description: Attempted to modify primary key or other error.
+ */
 router.patch('/:id', async (req, res) => {
     try {
         const id = parseInt(req.params.id);
@@ -92,6 +182,22 @@ router.patch('/:id', async (req, res) => {
 });
 
 // Delete ingredient by id //
+/**
+ * @openapi
+ * /ingredients/{id}:
+ * delete:
+ * summary: Delete an ingredient.
+ * description: Removes an ingredient from the database. This will also remove it from any pizzas it was part of (Cascade).
+ * parameters:
+ * - name: id
+ * in: path
+ * required: true
+ * schema:
+ * type: integer
+ * responses:
+ * 201:
+ * description: Deletion processed.
+ */
 router.delete('/:id', async (req, res) => {
     try {
         let exists = 1
