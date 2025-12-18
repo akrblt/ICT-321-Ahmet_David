@@ -66,7 +66,7 @@ const router = express.Router();
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/promotion'
+ *             $ref: '#/components/schemas/promotion_patch'
  *     responses:
  *       200:
  *         description: Promotion updated successfully.

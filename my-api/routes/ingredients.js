@@ -70,7 +70,7 @@ import db from '../db/db.js';
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/ingredient'
+ *             $ref: '#/components/schemas/ingredient_patch'
  *     responses:
  *       200:
  *         description: Update successful.

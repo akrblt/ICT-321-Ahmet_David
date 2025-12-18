@@ -85,7 +85,7 @@ const router = express.Router();
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/pizza'
+ *             $ref: '#/components/schemas/pizza_patch'
  *     responses:
  *       200:
  *         description: Update successful.
