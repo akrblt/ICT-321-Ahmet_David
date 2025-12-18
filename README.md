@@ -121,8 +121,4 @@ npm install swagger-jsdoc swagger-ui-express
 
 Then start the API and open:
 
-```text
-http://localhost:3000/api-docs/
-```
-
----
+[Routage Documentation](http://localhost:3000/api-docs/)
