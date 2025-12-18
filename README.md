@@ -59,8 +59,11 @@ You can find all the necessary information at this link. <br>
 ### 👉 https://github.com/akrblt/ICT-321-Ahmet_David/wiki
 
 ## 4- Swagger documentation
-You must install swagger ui  
+Contains all routes documentation.
+
+First you must install swagger ui with:
 npm install swagger-jsdoc swagger-ui-express  
+
 Then start the api and go to:
 http://localhost:3000/api-docs/
 
