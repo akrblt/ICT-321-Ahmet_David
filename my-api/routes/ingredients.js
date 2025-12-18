@@ -2,9 +2,37 @@ import express from 'express';
 const router = express.Router();
 import db from '../db/db.js';
 
-/* POST */
-/* Post ingredient */
-router.post('/create', async (req, res, next) => {
+
+// READ //
+// Read all ingredients
+
+router.get('/', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM ingredient');
+        res.json(rows); // return json
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Error occurred");
+    }
+})
+
+// Read ingredient by id
+
+router.get('/:id', async (req, res) => {
+    try {
+        const [rows] = await db.query('SELECT * FROM ingredient where id_ingredient = ?',
+            [req.params.id]);
+        if (rows.length === 0) return res.status(404).send("No ingredient found.");
+        res.json(rows[0]);
+    } catch (err){
+        console.log(err);
+        res.status(500).send("database error");
+    }
+});
+
+/* WRITE */
+/* Create ingredient */
+router.post('/', async (req, res, next) => {
     try {
         const {name} = req.body;
         console.log(name)
@@ -27,35 +55,7 @@ router.post('/create', async (req, res, next) => {
     }
 });
 
-// GET //
-// Get all ingredients
-
-router.get('/', async (req, res) => {
-    try {
-        const [rows] = await db.query('SELECT * FROM ingredient');
-        res.json(rows); // return json
-    } catch (err) {
-        console.log(err);
-        res.status(500).send("Error occurred");
-    }
-})
-
-// Get ingredient by id
-
-router.get('/:id', async (req, res) => {
-    try {
-        const [rows] = await db.query('SELECT * FROM ingredient where id_ingredient = ?',
-            [req.params.id]);
-        if (rows.length === 0) return res.status(404).send("No ingredient found.");
-        res.json(rows[0]);
-    } catch (err){
-        console.log(err);
-        res.status(500).send("database error");
-    }
-});
-
-/* PATCH : partial UPDATE */
-/* Patch ingredients */
+/* Patch ingredient by id (partial update) */
 router.patch('/:id', async (req, res) => {
     try {
         const id = parseInt(req.params.id);
@@ -93,7 +93,7 @@ router.patch('/:id', async (req, res) => {
     }
 });
 
-// DELETE //
+// Delete ingredient by id //
 router.delete('/:id', async (req, res) => {
     try {
         const id = parseInt(req.params.id);
