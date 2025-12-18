@@ -20,8 +20,8 @@ const router = express.Router();
  *         description: Database error.
  *
  *   post:
- *     summary: Create a new promotion for a pizza.
- *     description: Add a discount for a pizza with specific start and end dates.
+ *     summary: Create a new promotion for a pizza
+ *     description: Add a discount for a pizza with specific start and end dates
  *     requestBody:
  *       required: true
  *       content:
@@ -46,16 +46,78 @@ const router = express.Router();
  *                 type: number
  *     responses:
  *       200:
- *         description: Promotion created successfully.
+ *         description: Promotion created successfully
  *       400:
- *         description: Missing required fields.
+ *         description: Missing required fields
  *       500:
- *         description: Database error.
+ *         description: Database error
+ *
+ * /pizza-du-jour/nom:
+ *   get:
+ *     summary: Get the name of the pizza of the day
+ *     responses:
+ *       200:
+ *         description: Pizza name returned successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 nom:
+ *                   type: string
+ *       404:
+ *         description: No active pizza of the day
+ *       500:
+ *         description: Database error
+ *
+ * /pizza-du-jour/prix:
+ *   get:
+ *     summary: Get pricing information for the pizza of the day
+ *     responses:
+ *       200:
+ *         description: Pricing details returned successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 prix_original:
+ *                   type: number
+ *                 rabais:
+ *                   type: number
+ *                 prix_total:
+ *                   type: number
+ *       404:
+ *         description: No active pizza of the day
+ *       500:
+ *         description: Database error
+ *
+ * /pizza-du-jour/ingredients:
+ *   get:
+ *     summary: Get ingredients of the pizza of the day
+ *     responses:
+ *       200:
+ *         description: Ingredients list returned successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id_pizza:
+ *                   type: integer
+ *                 ingredients:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *       404:
+ *         description: No active pizza of the day
+ *       500:
+ *         description: Database error
  *
  * /pizza-du-jour/{id}:
  *   patch:
- *     summary: Partially update a promotion.
- *     description: Modify specific fields (dates, discount amount) of an existing promotion.
+ *     summary: Partially update a promotion
+ *     description: Modify specific fields of an existing promotion
  *     parameters:
  *       - name: id
  *         in: path
@@ -69,41 +131,30 @@ const router = express.Router();
  *             $ref: '#/components/schemas/promotion_patch'
  *     responses:
  *       200:
- *         description: Promotion updated successfully.
+ *         description: Promotion updated successfully
  *       400:
- *         description: Invalid field or empty body.
+ *         description: Invalid field or empty body
  *       500:
- *         description: Database error.
+ *         description: Database error
  *
  *   delete:
- *     summary: Delete a promotion.
- *     description: Remove a specific promotion offer by its ID.
+ *     summary: Delete a promotion
+ *     description: Remove a specific promotion offer by its ID
  *     parameters:
  *       - name: id
  *         in: path
  *         required: true
- *         description: The ID of the promotion to delete.
  *         schema:
  *           type: integer
  *     responses:
  *       200:
- *         description: Successfully processed the request.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 resDeletePizzaDuJour:
- *                   type: object
- *                   description: The raw response from the database.
- *                 pizzaFetch:
- *                   type: string
- *                   description: Confirmation message.
+ *         description: Promotion deleted successfully
  *       400:
  *         description: Promotion not found
  *       500:
- *         description: Database error.
+ *         description: Database error
  */
+
 
 /* READ */
 /* Read pizza du jour */
