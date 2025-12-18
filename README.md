@@ -3,15 +3,12 @@
 This project is a simple **Node.js + Express REST API** designed for learning routing, database access, and API structure.
 The application connects to a **MySQL** database and exposes endpoints for pizzas and ingredients.
 
----
 
 ## 1- Installation & Setup
 
 Follow the steps below to install and run the project on your machine.
 
----
-
-### 1- Install Node.js & npm
+### 1.1- Install Node.js & npm
 
 If you don’t have Node.js installed, download it from:
 👉 [https://nodejs.org/](https://nodejs.org/)
@@ -23,9 +20,7 @@ node -v
 npm -v
 ```
 
----
-
-### 2- Clone or Download the Project
+### 1.2- Clone or Download the Project
 
 You can use **IntelliJ IDEA**, **WebStorm**, or any other IDE to clone the project.
 
@@ -47,9 +42,7 @@ Navigate to the API folder:
 cd my-api
 ```
 
----
-
-### 3- Install Dependencies
+### 1.3- Install Dependencies
 
 Inside the **my-api** folder, run:
 
@@ -65,9 +58,7 @@ This installs packages such as:
 
 After installation, you should see a **node_modules/** folder.
 
----
-
-### 4- Configure the Database Connection
+### 1.4- Configure the Database Connection
 
 Your API reads database configuration from:
 
@@ -85,9 +76,7 @@ docs/app_pizza.sql
 ✔ Ensure the **pizza_app** database exists
 ✔ Ensure table names match the SQL file
 
----
-
-### 5- Start the API
+### 1.5- Start the API
 
 Start the application using one of the following commands:
 
@@ -107,8 +96,6 @@ The API will be available at:
 http://localhost:3000/
 ```
 
----
-
 ## 2- Technologies Used
 
 * Node.js
@@ -116,15 +103,11 @@ http://localhost:3000/
 * MySQL2
 * REST API
 
----
-
 ## 3- API Usage
 
 You can find all the necessary API usage information at the link below:
 
 👉 [https://github.com/akrblt/ICT-321-Ahmet_David/wiki](https://github.com/akrblt/ICT-321-Ahmet_David/wiki)
-
----
 
 ## 4- Swagger Documentation
 
