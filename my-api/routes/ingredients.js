@@ -96,16 +96,25 @@ router.patch('/:id', async (req, res) => {
 // Delete ingredient by id //
 router.delete('/:id', async (req, res) => {
     try {
+        let exists = 1
         const id = parseInt(req.params.id);
+        let [ingredientFetch] = await db.query('SELECT * FROM ingredient WHERE id_ingredient = ?', id);
+
+        if (ingredientFetch.length === 0) {
+            exists = 0
+            ingredientFetch = "L'ingrédient avec l'id: '" + id + "' n'existe pas.";
+        }
+
         const resDeleteIngredient = await db.query(`
         DELETE FROM ingredient 
         WHERE id_ingredient = ?`,
             id);
 
-        let [ingredientFetch] = await db.query('SELECT * FROM ingredient WHERE id_ingredient = ?', id);
-
-        if (ingredientFetch.length === 0) {
-            ingredientFetch = "L'ingrédient avec l'id: '" + id + "' n'existe pas.";
+        if (exists === 1) {
+            [ingredientFetch] = await db.query('SELECT * FROM ingredient WHERE id_ingredient = ?', id);
+            if (ingredientFetch.length === 0){
+                ingredientFetch = "L'ingredient avec l'id: '" + id + "' a été supprimé.";
+            }
         }
 
         return res.status(201).json({
