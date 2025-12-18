@@ -2,9 +2,8 @@ import express from 'express';
 import db from '../db/db.js';
 const router = express.Router();
 
-/* GET */
-
-/* Get all pizzas */
+/* READ */
+/* Read all pizzas */
 /**
  * @openapi
  * /pizzas:
@@ -110,7 +109,7 @@ router.get('/', async (req, res, next) => {
     }
 })
 
-// Get pizza by id
+// Read pizza by id
 /**
  * @openapi
  * /pizzas/:id:
@@ -140,7 +139,7 @@ router.get('/:id', async (req, res, next) => {
     }
 })
 
-// Get ingredients by pizza id
+// Read ingredients by pizza id
 /**
  * @openapi
  * /pizzas/:id/ingredients:
@@ -170,11 +169,11 @@ router.get('/:id/ingredients', async (req, res, next) => {
     }
 })
 
-/* POST */
-/* Post pizza */
+/* WRITE */
+/* Create pizza */
 /**
  * @openapi
- * /pizzas/pizzas/create:
+ * /pizzas:
  *   post:
  *     summary: create a pizza.
  *     description: post a pizza.
@@ -223,7 +222,7 @@ router.get('/:id/ingredients', async (req, res, next) => {
  *       500:
  *         description: system exception describing the error.
  */
-router.post('/create', async (req, res, next) => {
+router.post('/', async (req, res, next) => {
     try {
         const {name, description, prix, image, id_categorie} = req.body;
         console.log(name)
