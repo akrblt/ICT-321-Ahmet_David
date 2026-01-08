@@ -1,4 +1,20 @@
 -- ==========================================
+-- DROP EXISTING STRUCTURE
+-- ==========================================
+-- Disable checks to ensure a clean drop if needed,
+-- though correct ordering is usually sufficient.
+SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS Promotion;
+DROP TABLE IF EXISTS composer;
+DROP TABLE IF EXISTS Pizza;
+DROP TABLE IF EXISTS Ingredient;
+
+DROP DATABASE IF EXISTS PizzaApp;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- ==========================================
 -- CREATE DATABASE
 -- ==========================================
 CREATE DATABASE IF NOT EXISTS PizzaApp
