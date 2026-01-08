@@ -1,4 +1,4 @@
-# ICT-321 – Ahmet & David Pizza API
+# ICT-321 – Ahmet Karabulut & David Galindo Salamanca Pizza API
 
 This project is a simple **Node.js + Express REST API** designed for learning routing, database access, and API structure.
 The application connects to a **MySQL** database and exposes endpoints for pizzas and ingredients.
