@@ -103,7 +103,7 @@ const router = express.Router();
  *     responses:
  *       200:
  *         description: Deleted.
- *       400.
+ *       400:
  *         description: Pizza not found.
  *       500:
  *         description: Database error.
